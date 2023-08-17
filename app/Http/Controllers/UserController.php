@@ -1,38 +1,93 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection
-     */
     public function index()
     {
-        return  User::all();
-
-
+        $users = User::where('role','=','admin');
+        return response()->json($users);
     }
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\User  $product
-     * @return \Illuminate\Http\JsonResponse
-     */
+    private function generateNumericPassword($length)
+    {
+        $password = '';
+
+        for ($i = 0; $i < $length; $i++) {
+            $password .= mt_rand(0, 9);
+        }
+
+        return $password;
+    }
+    private function generateUniqueUsername($prenom)
+    {
+        $username = strtolower($prenom);
+        $i = 1;
+
+        // Vérifier l'unicité de l'username
+        while (User::where('username', $username)->exists()) {
+            $username = strtolower($prenom . $i);
+            $i++;
+        }
+
+        return $username;
+    }
+    public function store(Request $request)
+    {
+        $requiredFields = ['nom', 'prenom', 'role'];
+        $missingFields = [];
+
+        foreach ($requiredFields as $field) {
+            if (is_null($request->input($field))) {
+                $missingFields[] = $field;
+            }
+        }
+
+        if (!empty($missingFields)) {
+            $errorMessage = count($missingFields) > 1 ? 'Les champs suivants sont manquants : ' : 'Le champ suivant est manquant : ';
+            $errorMessage .= implode(', ', $missingFields);
+
+            return $this->errorResponse(
+                $errorMessage,
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+        $request->validate([
+            'nom' => 'required|string|max:255',
+            'prenom' => 'required|string|max:255',
+            'role' => 'required|string|max:255',
+
+        ]);
+        $username = $this->generateUniqueUsername($request->input('prenom'));
+
+        $password = $this->generateNumericPassword(8);
+        $user = User::create([
+            'nom' => $request->input('nom'), // Utilisez 'input' pour accéder aux valeurs
+            'prenom' => $request->input('prenom'),
+            'username' => $username,
+            'role' => $request->input('role'),
+            'password' => Hash::make($request->input('password')),
+            'passwordinit' =>$password, // Assurez-vous que le champ "passwordinit" existe dans le modèle
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'User created successfully',
+            'user' => $user,
+        ], 201);
+    }
     public function show($id)
     {
-        $User= User::find($id);
+
+        $User= User::findOrFail($id);
 
         Return response()->json($User);
     }
-
     /**
      * Show the form for editing the specified resource.
      *
@@ -42,46 +97,15 @@ class UserController extends Controller
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
-        $data = [];
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'role' => 'required|string|max:255',
-            'username' => [
-                'required',
-                'string',
-                'max:255',
-            ]
-        ]);
-        $data["name"] = $request->name;
-        $data["username"] = $request->username;
-        $data["role"] = $request->role;
-        $user->update($data);
+        $user->update($request->all());
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'User updated successfully',
-            'user' => $user,
-        ]);
+        return response()->json($user, 200);
     }
 
-
-    public function destroy(Request $request): \Illuminate\Http\JsonResponse
+    public function destroy($id)
     {
-
-        $data = $request->input(["data"]);
-        $d = [];
-        foreach ($data as $id) {
-            $d[] = User::findOrFail($id);
-        }
-
-        foreach ($d as $user) {
-            if ($user) {
-                $user->delete();
-            } else {
-                return response()->json("eureur");
-            }
-        }
-        return response()->json("sucess");
+        $user = User::findOrFail($id);
+        $user->delete();
+        return response()->json(null, 204);
     }
-
 }

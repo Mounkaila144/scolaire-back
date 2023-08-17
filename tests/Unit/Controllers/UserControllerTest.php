@@ -2,75 +2,152 @@
 
 namespace Tests\Unit\Controllers;
 
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\DepenseController;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Tests\TestCase;
 
 class UserControllerTest extends TestCase
 {
-    use RefreshDatabase, WithFaker;
+    use RefreshDatabase;
+
 
     /** @test */
-    public function it_can_list_all_users()
+    public function it_can_get_all_users()
     {
-        $users = User::factory()->count(3)->create();
+        $data = [
+            'nom' => fake()->firstName(),
+            'prenom' => fake()->lastName(),
+            'role' => "admin"
+        ];
+        $this->json('post', 'api/users', $data);
+        $response = $this->getJson('/api/users');
 
-        $controller = new UserController();
-        $response = $controller->index();
-
-        $this->assertCount(3, $response);
-        $this->assertInstanceOf(User::class, $response[0]);
+        $response->assertStatus(200);
+        $this->assertCount(1, User::all());
     }
 
     /** @test */
-    public function it_can_show_a_user()
+    public function test_it_can_show_and_store_users()
     {
-        $user = User::factory()->create();
+        $data = [
+            'nom' => fake()->firstName(),
+            'prenom' => fake()->lastName(),
+            'role' => "admin"
+        ];
 
-        $controller = new UserController();
-        $response = $controller->show($user->id);
+        // Enregistrer l'utilisateur et récupérer la réponse JSON
+        $response = $this->json('post', 'api/users', $data);
 
-        $this->assertInstanceOf(User::class, $response);
-        $this->assertEquals($user->id, $response->id);
+        $user = $response->json('user'); // Récupérer l'utilisateur créé dans la réponse
+
+        // Vérifier si les détails de l'utilisateur peuvent être récupérés via l'API
+        $this->json('get', "api/users/{$user['id']}")
+            ->assertStatus(200)
+            ->assertJson([
+                'nom' => $user['nom'],
+                'prenom' => $user['prenom'],
+                'role' => $user['role'],
+                // Ajouter d'autres champs que vous souhaitez vérifier
+            ]);
+    }
+
+    public function testShowForMissingUser()
+    {
+
+        $this->json('get', "api/users/0")
+            ->assertStatus(Response::HTTP_NOT_FOUND)
+            ->assertJsonStructure(['error']);
+
     }
 
     /** @test */
-    public function it_can_update_a_user()
+    public function testStoreWithMissingData()
     {
-        $user = User::factory()->create();
 
-        $controller = new UserController();
-        $request = new Request([
-            'name' => $this->faker->name,
-            'role' => $this->faker->word,
-            'username' => $this->faker->userName,
-        ]);
-        $response = $controller->update($request, $user->id);
-
-        $this->assertInstanceOf(User::class, $response->user);
-        $this->assertEquals($user->id, $response->user->id);
-        $this->assertEquals($request->name, $response->user->name);
-        $this->assertEquals($request->role, $response->user->role);
-        $this->assertEquals($request->username, $response->user->username);
+        $payload = [
+            'nom' => 'Mathematics'
+//            'prix' => 200,
+            //email address is missing
+        ];
+        $this->json('post', 'api/users', $payload)
+            ->assertStatus(Response::HTTP_BAD_REQUEST)
+            ->assertJsonStructure(['error']);
     }
 
     /** @test */
-    public function it_can_delete_multiple_users()
+    public function test_it_can_update_a_user()
     {
-        $users = User::factory()->count(3)->create();
+        $data = [
+            'nom' => fake()->firstName(),
+            'prenom' => fake()->lastName(),
+            'role' => "admin"
+        ];
 
-        $controller = new UserController();
-        $request = new Request([
-            'data' => [$users[0]->id, $users[1]->id, $users[2]->id],
-        ]);
-        $response = $controller->destroy($request);
+        // Enregistrer l'utilisateur et récupérer la réponse JSON
+        $response = $this->json('post', 'api/users', $data);
 
-        $this->assertEquals("sucess", $response->getContent());
-        $this->assertDatabaseMissing('users', ['id' => $users[0]->id]);
-        $this->assertDatabaseMissing('users', ['id' => $users[1]->id]);
-        $this->assertDatabaseMissing('users', ['id' => $users[2]->id]);
+        $user = $response->json('user'); // Récupérer l'utilisateur créé dans la réponse
+
+        $dataEdit = [
+            'nom' => 'bbc',
+            'prenom' => 'mkl',
+            // Ajoutez d'autres données à modifier au besoin
+        ];
+
+        // Mettre à jour les données de l'utilisateur via l'API PUT
+        $this->json('put', "api/users/{$user['id']}", $dataEdit)
+            ->assertStatus(200);
+
+        // Récupérer à nouveau les détails de l'utilisateur après la mise à jour
+        $updatedUserResponse = $this->json('get', "api/users/{$user['id']}")
+            ->assertStatus(200)
+            ->assertJson([
+                'nom' => $dataEdit['nom'],
+                'prenom' => $dataEdit['prenom'],
+                // Ajoutez d'autres champs que vous avez modifiés
+            ]);
+    }
+
+    public function testUpdateForMissingUser()
+    {
+
+        $payload = [
+            'nom' => 'Science',
+            'prix' => 250,
+        ];
+
+        $this->json('put', 'api/users/0', $payload)
+            ->assertStatus(Response::HTTP_NOT_FOUND)
+            ->assertJsonStructure(['error']);
+    }
+
+    /** @test */
+    public function it_can_delete_a_user()
+    {
+        $data = [
+            'nom' => fake()->firstName(),
+            'prenom' => fake()->lastName(),
+            'role' => "admin"
+        ];
+
+        // Enregistrer l'utilisateur et récupérer la réponse JSON
+        $response = $this->json('post', 'api/users', $data);
+
+        $user = $response->json('user');
+        $this->json('delete', "api/users/{$user['id']}")
+            ->assertStatus(204)
+            ->assertNoContent();
+        $this->assertDatabaseMissing('users', $data);
+
+    }
+
+    public function testDestroyForMissingUser()
+    {
+
+        $this->json('delete', 'api/users/0')
+            ->assertStatus(Response::HTTP_NOT_FOUND)
+            ->assertJsonStructure(['error']);
     }
 }

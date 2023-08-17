@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\ClassController;
+use App\Http\Controllers\DepenseController;
+use App\Http\Controllers\EleveController;
 use App\Http\Controllers\OrdersController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AuthController;
@@ -8,6 +11,7 @@ use App\Http\Controllers\Dahboard;
 use App\Http\Controllers\EntresortiController;
 use App\Http\Controllers\FactureController;
 use App\Http\Controllers\globale;
+use App\Http\Controllers\PromotionController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\SuplierController;
 use App\Http\Controllers\UserController;
@@ -58,12 +62,15 @@ Route::group(['middleware' => 'permissionUser'], function () {
     Route::get('historique/prix', [globale::class,"prixStocks"]);
     Route::get('historique/delect', [globale::class,"delectStocks"]);
 });
-
+Route::resource('users', UserController::class);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout']);
 Route::post('/refresh', [AuthController::class, 'refresh']);
-
+Route::resource('eleves', EleveController::class);
+Route::resource('classes', ClassController::class);
+Route::resource('promotions', PromotionController::class);
+Route::resource('depenses', DepenseController::class);
 
 
 

@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('nom');
             $table->year('debut');
             $table->year('fin');
+            $table->timestamps();
+
         });
     }
 
