@@ -12,12 +12,12 @@ use Tests\TestCase;
 use App\Models\Depense;
 use App\Models\Scolarite;
 use App\Models\Payteacher;
-class EleveControllerTest extends TestCase
+class ProfControllerTest extends TestCase
 {
     use RefreshDatabase;
 
     /** @test */
-    public function it_can_get_all_eleves()
+    public function it_can_get_all_professeurs()
     {
         $promotion = Promotion::factory()->create();
         $classe = Classe::factory()->create();
@@ -30,19 +30,17 @@ class EleveControllerTest extends TestCase
             'birth' => '2000-01-01',
             'nationalite' => 'FR',
             'genre' => 'M',
-            'classe_id' => $classe->id, // Remplacez par l'ID de la classe appropriée
-            'promotion_id' => $promotion->id,
         ];
 
 
-        $this->json('post', 'api/eleves', $data);
-      $this->json('get', 'api/eleves')
+        $this->json('post', 'api/professeurs', $data);
+      $this->json('get', 'api/professeurs')
             ->assertStatus(200)
         ->assertJsonCount(1);
     }
 
     /** @test */
-    public function test_it_can_show_and_store_eleves()
+    public function test_it_can_show_and_store_professeurs()
     {
         $promotion = Promotion::factory()->create();
         $classe = Classe::factory()->create();
@@ -55,16 +53,14 @@ class EleveControllerTest extends TestCase
             'birth' => '2000-01-01',
             'nationalite' => 'FR',
             'genre' => 'M',
-            'classe_id' => $classe->id, // Remplacez par l'ID de la classe appropriée
-            'promotion_id' => $promotion->id,
         ];
 
         // Enregistrer l'utilisateur et récupérer la réponse JSON
-        $response = $this->json('post', 'api/eleves', $data);
-        $eleve = $response->json();
+        $response = $this->json('post', 'api/professeurs', $data);
+        $prof = $response->json();
         // Récupérer l'utilisateur créé dans la réponse
         // Vérifier si les détails de l'utilisateur peuvent être récupérés via l'API
-        $this->json('get', "api/eleves/{$eleve['id']}")
+        $this->json('get', "api/professeurs/{$prof['id']}")
             ->assertStatus(200)
             ->assertJson([
                 'number' => '12345',
@@ -72,14 +68,13 @@ class EleveControllerTest extends TestCase
                 'birth' => '2000-01-01',
                 'nationalite' => 'FR',
                 'genre' => 'M',
-                'classe_id' => $classe->id // Remplacez par l'ID de la classe appropriée
             ]);
     }
 
     public function testShowForMissingPromotion()
     {
 
-        $this->json('get', "api/eleves/0")
+        $this->json('get', "api/professeurs/0")
             ->assertStatus(Response::HTTP_NOT_FOUND)
             ->assertJsonStructure(['error']);
 
@@ -94,13 +89,13 @@ class EleveControllerTest extends TestCase
 //            'prix' => 200,
             //email address is missing
         ];
-        $this->json('post', 'api/eleves', $payload)
+        $this->json('post', 'api/professeurs', $payload)
             ->assertStatus(Response::HTTP_BAD_REQUEST)
             ->assertJsonStructure(['error']);
     }
 
     /** @test */
-    public function test_it_can_update_a_eleve()
+    public function test_it_can_update_a_prof()
     {
         $promotion = Promotion::factory()->create();
         $classe = Classe::factory()->create();
@@ -113,14 +108,12 @@ class EleveControllerTest extends TestCase
             'birth' => '2000-01-01',
             'nationalite' => 'FR',
             'genre' => 'M',
-            'classe_id' => $classe->id, // Remplacez par l'ID de la classe appropriée
-            'promotion_id' => $promotion->id,
         ];
 
         // Enregistrer l'utilisateur et récupérer la réponse JSON
-        $response = $this->json('post', 'api/eleves', $data);
+        $response = $this->json('post', 'api/professeurs', $data);
 
-        $eleve = $response->json(); // Récupérer l'utilisateur créé dans la réponse
+        $prof = $response->json(); // Récupérer l'utilisateur créé dans la réponse
 
         $dataEdit = [
                 'adresse' => 'edit'
@@ -128,11 +121,11 @@ class EleveControllerTest extends TestCase
         ];
 
         // Mettre à jour les données de l'utilisateur via l'API PUT
-        $this->json('put', "api/eleves/{$eleve['id']}", $dataEdit)
+        $this->json('put', "api/professeurs/{$prof['id']}", $dataEdit)
             ->assertStatus(200);
 
         // Récupérer à nouveau les détails de l'utilisateur après la mise à jour
-       $this->json('get', "api/eleves/{$eleve['id']}")
+       $this->json('get', "api/professeurs/{$prof['id']}")
             ->assertStatus(200)
             ->assertJson([
                 'adresse' => 'edit'
@@ -153,19 +146,17 @@ class EleveControllerTest extends TestCase
             'birth' => '2000-01-01',
             'nationalite' => 'FR',
             'genre' => 'M',
-            'classe_id' => $classe->id, // Remplacez par l'ID de la classe appropriée
-            'promotion_id' => $promotion->id,
         ];
 
 
         // Enregistrer l'utilisateur et récupérer la réponse JSON
-        $this->json('put', 'api/eleves/0', $data)
+        $this->json('put', 'api/professeurs/0', $data)
             ->assertStatus(Response::HTTP_NOT_FOUND)
             ->assertJsonStructure(['error']);
     }
 
     /** @test */
-    public function it_can_delete_a_eleve()
+    public function it_can_delete_a_prof()
     {
         $promotion = Promotion::factory()->create();
         $classe = Classe::factory()->create();
@@ -178,102 +169,27 @@ class EleveControllerTest extends TestCase
             'birth' => '2000-01-01',
             'nationalite' => 'FR',
             'genre' => 'M',
-            'classe_id' => $classe->id, // Remplacez par l'ID de la classe appropriée
-            'promotion_id' => $promotion->id,
         ];
 
         // Enregistrer l'utilisateur et récupérer la réponse JSON
-        $response = $this->json('post', 'api/eleves', $data);
+        $response = $this->json('post', 'api/professeurs', $data);
 
-        $eleve = $response->json();
+        $prof = $response->json();
 
-        $this->json('delete', "api/eleves/{$eleve['id']}")
+        $this->json('delete', "api/professeurs/{$prof['id']}")
             ->assertStatus(204)
             ->assertNoContent();
-        $this->assertDatabaseMissing('eleves', $data);
+        $this->assertDatabaseMissing('professeurs', $data);
 
     }
 
     public function testDestroyForMissingPromotion()
     {
 
-        $this->json('delete', 'api/eleves/0')
+        $this->json('delete', 'api/professeurs/0')
             ->assertStatus(Response::HTTP_NOT_FOUND)
             ->assertJsonStructure(['error']);
     }
 
-    /** @test */
-    public function it_belongs_to_a_promotion_and_classe()
-    {
-        // Créez une dépense et une promotion
-        $promotion1 = Promotion::factory()->create();
-        $promotion2 = Promotion::factory()->create();
-        $classe = Classe::factory()->create();
-
-        $data = [
-            'nom' => 'Mounkaila',
-            'prenom' => 'Boubacar',
-            'number' => '12345',
-            'adresse' => '123 Street',
-            'birth' => '2000-01-01',
-            'nationalite' => 'FR',
-            'genre' => 'M',
-            'classe_id' => $classe->id,
-            'promotion_id' => $promotion1->id,
-
-        ];
-
-        // Enregistrer l'utilisateur et récupérer la réponse JSON
-        $response = $this->json('post', 'api/eleves', $data);
-
-        $eleve = $response->json();
-//        $eleve->promotions()->attach([$promotion1->id, $promotion2->id]);
-//        $this->assertArrayHasKey('promotions', $eleve);
-
-//        // Verify the promotion IDs present in the response
-//        $this->assertContains($promotion1->id, array_column($eleve['promotions'], 'id'));
-//        $this->assertContains($promotion2->id, array_column($eleve['promotions'], 'id'));
-
-        $this->assertArrayHasKey('classe', $eleve);
-        $this->assertEquals($classe->id, $eleve["classe"]["id"]);
-    }
-    /** @test */
-    public function it_can_assign_a_promotion_to_an_eleve()
-    {
-        // Créez une dépense et une promotion
-        $promotion1 = Promotion::factory()->create();
-        $promotion2 = Promotion::factory()->create();
-        $classe = Classe::factory()->create();
-
-        $data = [
-            'nom' => 'Mounkaila',
-            'prenom' => 'Boubacar',
-            'number' => '12345',
-            'adresse' => '123 Street',
-            'birth' => '2000-01-01',
-            'nationalite' => 'FR',
-            'genre' => 'M',
-            'classe_id' => $classe->id,
-            'promotion_id' => $promotion2->id,
-
-        ];
-
-        // Enregistrer l'utilisateur et récupérer la réponse JSON
-        $response = $this->json('post', 'api/eleves', $data);
-
-        $eleve = $response->json();
-        $eleveId = $eleve['id'];
-
-// Récupérer l'objet Eleve de la base de données et attacher la promotion
-        $eleveFromDB = Eleve::find($eleveId);
-        $eleveFromDB->promotions()->attach($promotion1->id);
-
-
-        // Assertions
-        $this->assertDatabaseHas('eleve_promotion', [
-            'eleve_id' => $eleveId,
-            'promotion_id' => $promotion1->id
-        ]);
     }
 
-}

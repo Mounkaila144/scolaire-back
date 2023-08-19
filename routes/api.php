@@ -11,8 +11,10 @@ use App\Http\Controllers\Dahboard;
 use App\Http\Controllers\EntresortiController;
 use App\Http\Controllers\FactureController;
 use App\Http\Controllers\globale;
+use App\Http\Controllers\ProfController;
 use App\Http\Controllers\PromotionController;
 use App\Http\Controllers\ReservationController;
+use App\Http\Controllers\ScolaireController;
 use App\Http\Controllers\SuplierController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VenteController;
@@ -69,7 +71,9 @@ Route::post('/logout', [AuthController::class, 'logout']);
 Route::post('/refresh', [AuthController::class, 'refresh']);
 Route::resource('eleves', EleveController::class);
 Route::resource('classes', ClassController::class);
+Route::resource('professeurs', ProfController::class);
 Route::resource('promotions', PromotionController::class);
+Route::resource('scolarites', ScolaireController::class);
 Route::resource('depenses', DepenseController::class);
 
 

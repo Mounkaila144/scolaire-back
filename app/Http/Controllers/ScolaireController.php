@@ -1,11 +1,12 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Models\Eleve;
 use App\Models\Scolarite;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
-class PscolaireController extends Controller
+class ScolaireController extends Controller
 {
     public function index()
     {
@@ -15,17 +16,23 @@ class PscolaireController extends Controller
 
     public function store(Request $request)
     {
+        $request->validate([
+            'eleve_id' => 'required|exists:eleves,id',
+            'promotion_id' => 'required|exists:promotions,id',
+        ]);
 
-//        dd($request->all());
-        if (is_null($request->input('nom')) || is_null($request->input('prix')) ) {
-            return $this->errorResponse(
-                'le nom et le prix sont obligatoir',
-                Response::HTTP_BAD_REQUEST
-            );
-        }
-        $scolaire = Scolarite::create($request->all());
-        $scolaire->save();
-        return response()->json($scolaire, 201);
+        $eleve = Eleve::findOrFail($request->eleve_id);
+        $prix = $eleve->classe->prix; // Récupérer le prix depuis la classe de l'élève
+
+        $data = [
+            'prix' => $prix,
+            'eleve_id' => $request->eleve_id,
+            'promotion_id' => $request->promotion_id
+        ];
+
+        $scolarite = Scolarite::create($data);
+
+        return response()->json($scolarite, 201);
     }
     public function show($id)
     {
