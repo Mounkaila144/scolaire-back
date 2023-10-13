@@ -35,8 +35,12 @@ class EleveControllerTest extends TestCase
         ];
 
 
-        $this->json('post', 'api/eleves', $data);
-      $this->json('get', 'api/eleves')
+        // Enregistrement de l'élève avec un en-tête X-Promotion
+        $response = $this->withHeaders([
+            'X-Promotion' => $promotion->id,
+        ])->json('POST', 'api/eleves', $data);
+
+        $this->json('get', 'api/eleves')
             ->assertStatus(200)
         ->assertJsonCount(1);
     }
@@ -55,16 +59,20 @@ class EleveControllerTest extends TestCase
             'birth' => '2000-01-01',
             'nationalite' => 'FR',
             'genre' => 'M',
-            'classe_id' => $classe->id, // Remplacez par l'ID de la classe appropriée
-            'promotion_id' => $promotion->id,
+            'classe_id' => $classe->id,
         ];
 
-        // Enregistrer l'utilisateur et récupérer la réponse JSON
-        $response = $this->json('post', 'api/eleves', $data);
+        // Enregistrement de l'élève avec un en-tête X-Promotion
+        $response = $this->withHeaders([
+            'X-Promotion' => $promotion->id,
+        ])->json('POST', 'api/eleves', $data);
+
         $eleve = $response->json();
-        // Récupérer l'utilisateur créé dans la réponse
-        // Vérifier si les détails de l'utilisateur peuvent être récupérés via l'API
-        $this->json('get', "api/eleves/{$eleve['id']}")
+
+        // Vérification de l'élève avec un en-tête X-Promotion
+        $this->withHeaders([
+            'X-Promotion' => $promotion->id,
+        ])->json('GET', "api/eleves/{$eleve['id']}")
             ->assertStatus(200)
             ->assertJson([
                 'number' => '12345',
@@ -72,7 +80,7 @@ class EleveControllerTest extends TestCase
                 'birth' => '2000-01-01',
                 'nationalite' => 'FR',
                 'genre' => 'M',
-                'classe_id' => $classe->id // Remplacez par l'ID de la classe appropriée
+                'classe_id' => $classe->id,
             ]);
     }
 
@@ -118,7 +126,11 @@ class EleveControllerTest extends TestCase
         ];
 
         // Enregistrer l'utilisateur et récupérer la réponse JSON
-        $response = $this->json('post', 'api/eleves', $data);
+            // Enregistrement de l'élève avec un en-tête X-Promotion
+        $response = $this->withHeaders([
+            'X-Promotion' => $promotion->id,
+        ])->json('POST', 'api/eleves', $data);
+
 
         $eleve = $response->json(); // Récupérer l'utilisateur créé dans la réponse
 
@@ -183,7 +195,11 @@ class EleveControllerTest extends TestCase
         ];
 
         // Enregistrer l'utilisateur et récupérer la réponse JSON
-        $response = $this->json('post', 'api/eleves', $data);
+            // Enregistrement de l'élève avec un en-tête X-Promotion
+        $response = $this->withHeaders([
+            'X-Promotion' => $promotion->id,
+        ])->json('POST', 'api/eleves', $data);
+
 
         $eleve = $response->json();
 
@@ -224,7 +240,11 @@ class EleveControllerTest extends TestCase
         ];
 
         // Enregistrer l'utilisateur et récupérer la réponse JSON
-        $response = $this->json('post', 'api/eleves', $data);
+            // Enregistrement de l'élève avec un en-tête X-Promotion
+        $response = $this->withHeaders([
+            'X-Promotion' => $promotion2->id,
+        ])->json('POST', 'api/eleves', $data);
+
 
         $eleve = $response->json();
 //        $eleve->promotions()->attach([$promotion1->id, $promotion2->id]);
@@ -259,7 +279,11 @@ class EleveControllerTest extends TestCase
         ];
 
         // Enregistrer l'utilisateur et récupérer la réponse JSON
-        $response = $this->json('post', 'api/eleves', $data);
+            // Enregistrement de l'élève avec un en-tête X-Promotion
+        $response = $this->withHeaders([
+            'X-Promotion' => $promotion1->id,
+        ])->json('POST', 'api/eleves', $data);
+
 
         $eleve = $response->json();
         $eleveId = $eleve['id'];

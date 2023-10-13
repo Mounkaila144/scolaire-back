@@ -13,15 +13,18 @@ class Eleve extends Model
     {
         return $this->belongsTo(User::class);
     }
-public function classe()
+
+    public function classe()
     {
         return $this->belongsTo(Classe::class);
     }
-public function promotions()
+
+    public function promotions()
     {
         return $this->belongsToMany(Promotion::class);
     }
-    public function eleve()
+
+    public function scolarite()
     {
         return $this->hasOne(Scolarite::class);
     }

@@ -15,6 +15,8 @@ class DepenseController extends Controller
 
     public function store(Request $request)
     {
+        $promotionId = $request->header('X-Promotion');
+
         $requiredFields = ['details', 'prix']; // Champs requis
         $missingFields = [];
 
@@ -34,7 +36,7 @@ class DepenseController extends Controller
             );
         }
         $data = $request->all();
-
+$data["promotion_id"]=$promotionId;
         $classe = Depense::create($data);
         $classe->save();
         return response()->json($classe, 201);

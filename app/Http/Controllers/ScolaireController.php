@@ -16,9 +16,10 @@ class ScolaireController extends Controller
 
     public function store(Request $request)
     {
+        $promotionId = $request->header('X-Promotion');
+
         $request->validate([
             'eleve_id' => 'required|exists:eleves,id',
-            'promotion_id' => 'required|exists:promotions,id',
         ]);
 
         $eleve = Eleve::findOrFail($request->eleve_id);
@@ -27,7 +28,7 @@ class ScolaireController extends Controller
         $data = [
             'prix' => $prix,
             'eleve_id' => $request->eleve_id,
-            'promotion_id' => $request->promotion_id
+            'promotion_id' => $promotionId
         ];
 
         $scolarite = Scolarite::create($data);
@@ -49,8 +50,12 @@ class ScolaireController extends Controller
      */
     public function update(Request $request, $id)
     {
+
+
         $scolaire = Scolarite::findOrFail($id);
-        $scolaire->update($request->all());
+        $data = $request->all();
+
+        $scolaire->update($data);
 
         return response()->json($scolaire, 200);
     }

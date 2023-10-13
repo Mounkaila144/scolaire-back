@@ -18,7 +18,7 @@ class ClassControllerTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJsonStructure([
-                '*' => ['id', 'nom', 'prix', 'created_at', 'updated_at'],
+                '*' => ['id', 'nom','eleves_count', 'prix', 'created_at', 'updated_at'],
             ]);
     }
 
@@ -50,6 +50,7 @@ class ClassControllerTest extends TestCase
             ->assertJson([
                 'nom' => $classe->nom,
                 'prix' => $classe->prix,
+                'eleves_count'=>0
                 // Add other fields you want to check for
             ]);
 

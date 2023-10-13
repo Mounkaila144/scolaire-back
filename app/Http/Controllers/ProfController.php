@@ -11,7 +11,7 @@ class ProfController extends Controller
 {
     public function index()
     {
-        $prof = Professeur::all();
+        $prof = Professeur::with(['user'])->get();
         return response()->json($prof);
     }
 

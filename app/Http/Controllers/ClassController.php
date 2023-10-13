@@ -9,9 +9,10 @@ class ClassController extends Controller
 {
     public function index()
     {
-        $classes = Classe::all();
+        $classes = Classe::withCount('eleves')->get();
         return response()->json($classes);
     }
+
 
     public function store(Request $request)
     {
@@ -40,11 +41,10 @@ class ClassController extends Controller
     }
     public function show($id)
     {
-
-        $Classe= Classe::findOrFail($id);
-
-        Return response()->json($Classe);
+        $classe = Classe::withCount('eleves')->findOrFail($id);
+        return response()->json($classe);
     }
+
     /**
      * Show the form for editing the specified resource.
      *

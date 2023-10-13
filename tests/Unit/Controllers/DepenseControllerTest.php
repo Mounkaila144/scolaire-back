@@ -21,11 +21,12 @@ class DepenseControllerTest extends TestCase
 
         $data = [
             'details' => "details",
-            'prix' => 500,
-            'promotion_id' =>$promotion->id,
+            'prix' => 500
         ];
 
-        $r=$this->json('post', 'api/depenses', $data);
+        $response = $this->withHeaders([
+            'X-Promotion' => $promotion->id,
+        ])->json('post', 'api/depenses', $data);
         $response = $this->json('get', 'api/depenses')
             ->assertStatus(200)
         ->assertJsonCount(1);
@@ -38,12 +39,13 @@ class DepenseControllerTest extends TestCase
 
         $data = [
             'details' => "details",
-            'prix' => 500,
-            'promotion_id' =>$promotion->id,
+            'prix' => 500
         ];
 
         // Enregistrer l'utilisateur et récupérer la réponse JSON
-        $response = $this->json('post', 'api/depenses', $data);
+        $response = $this->withHeaders([
+            'X-Promotion' => $promotion->id,
+        ])->json('post', 'api/depenses', $data);
         $depense = $response->json();
         // Récupérer l'utilisateur créé dans la réponse
         // Vérifier si les détails de l'utilisateur peuvent être récupérés via l'API
@@ -87,11 +89,12 @@ class DepenseControllerTest extends TestCase
 
         $data = [
             'details' => "details",
-            'prix' => 500,
-            'promotion_id' =>$promotion->id,
+            'prix' => 500
         ];
 
-        $response = $this->json('post', 'api/depenses', $data);
+        $response = $this->withHeaders([
+            'X-Promotion' => $promotion->id,
+        ])->json('post', 'api/depenses', $data);
 
         $depense = $response->json(); // Récupérer l'utilisateur créé dans la réponse
 
@@ -120,13 +123,14 @@ class DepenseControllerTest extends TestCase
 
         $data = [
             'details' => "details",
-            'prix' => 500,
-            'promotion_id' =>$promotion->id,
+            'prix' => 500
         ];
 
 
         // Enregistrer l'utilisateur et récupérer la réponse JSON
-        $this->json('put', 'api/depenses/0', $data)
+       $this->withHeaders([
+            'X-Promotion' => $promotion->id,
+        ])->json('put', 'api/depenses/0', $data)
             ->assertStatus(Response::HTTP_NOT_FOUND)
             ->assertJsonStructure(['error']);
     }
@@ -138,12 +142,13 @@ class DepenseControllerTest extends TestCase
 
         $data = [
             'details' => "details",
-            'prix' => 500,
-            'promotion_id' =>$promotion->id,
+            'prix' => 500
         ];
 
         // Enregistrer l'utilisateur et récupérer la réponse JSON
-        $response = $this->json('post', 'api/depenses', $data);
+        $response = $this->withHeaders([
+            'X-Promotion' => $promotion->id,
+        ])->json('post', 'api/depenses', $data);
 
         $depense = $response->json();
         $this->json('delete', "api/depenses/{$depense['id']}")

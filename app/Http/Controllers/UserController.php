@@ -11,7 +11,7 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::where('role','=','admin');
+        $users = User::where('role', 'admin')->get();
         return response()->json($users);
     }
     private function generateNumericPassword($length)
@@ -71,7 +71,7 @@ class UserController extends Controller
             'prenom' => $request->input('prenom'),
             'username' => $username,
             'role' => $request->input('role'),
-            'password' => Hash::make($request->input('password')),
+            'password' => Hash::make($password),
             'passwordinit' =>$password, // Assurez-vous que le champ "passwordinit" existe dans le modèle
         ]);
 

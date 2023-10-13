@@ -1,9 +1,12 @@
 <?php
 
 use App\Http\Controllers\ClassController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DepenseController;
 use App\Http\Controllers\EleveController;
 use App\Http\Controllers\OrdersController;
+use App\Http\Controllers\PayadminController;
+use App\Http\Controllers\PayteacherController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategorieController;
@@ -69,12 +72,17 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout']);
 Route::post('/refresh', [AuthController::class, 'refresh']);
+Route::get('/eleves/classe/{id}', [EleveController::class, 'filterByClasse']);
 Route::resource('eleves', EleveController::class);
 Route::resource('classes', ClassController::class);
 Route::resource('professeurs', ProfController::class);
 Route::resource('promotions', PromotionController::class);
 Route::resource('scolarites', ScolaireController::class);
+Route::resource('payteachers', PayteacherController::class);
+Route::resource('payadmins', PayadminController::class);
 Route::resource('depenses', DepenseController::class);
+Route::get('/dashboard', [DashboardController::class, 'stats']);
+Route::get('/me', [AuthController::class, 'me']);
 
 
 

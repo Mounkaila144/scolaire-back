@@ -12,7 +12,6 @@ class PromotionFactory extends Factory
     public function definition()
     {
         return [
-            'nom' => $this->faker->word,
             'debut' => now()->year, // Utilisez l'année actuelle ou toute autre logique que vous préférez
             'fin' => now()->addYear()->year, // Utilisez l'année actuelle + 1 ou toute autre logique que vous préférez
         ];

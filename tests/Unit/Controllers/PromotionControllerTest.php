@@ -20,7 +20,6 @@ class PromotionControllerTest extends TestCase
         $data = [
             'debut' => now()->year, // Obtenir uniquement l'année actuelle
             'fin' => now()->addYear()->year, // Obtenir l'année actuelle + 1
-            'nom' => 'Promo 2023',
         ];
 
         $this->json('post', 'api/promotions', $data);
@@ -32,10 +31,11 @@ class PromotionControllerTest extends TestCase
     /** @test */
     public function test_it_can_show_and_store_promotions()
     {
+        $currentYear = now()->year;
+        $nextYear = now()->addYear()->year;
         $data = [
             'debut' => now()->year, // Obtenir uniquement l'année actuelle
             'fin' => now()->addYear()->year, // Obtenir l'année actuelle + 1
-            'nom' => 'Promo 2023',
         ];
 
         // Enregistrer l'utilisateur et récupérer la réponse JSON
@@ -47,7 +47,6 @@ class PromotionControllerTest extends TestCase
             ->assertJson([
                 'debut' => now()->year, // Obtenir uniquement l'année actuelle
                 'fin' => now()->addYear()->year, // Obtenir l'année actuelle + 1
-                'nom' => 'Promo 2023',
                 // Ajouter d'autres champs que vous souhaitez vérifier
             ]);
     }
@@ -78,10 +77,12 @@ class PromotionControllerTest extends TestCase
     /** @test */
     public function test_it_can_update_a_promotion()
     {
+        $currentYear = now()->year;
+        $nextYear = now()->addYear()->year;
         $data = [
             'debut' => now()->year, // Obtenir uniquement l'année actuelle
             'fin' => now()->addYear()->year, // Obtenir l'année actuelle + 1
-            'nom' => 'Promo 2023',
+
         ];
 
         // Enregistrer l'utilisateur et récupérer la réponse JSON
@@ -90,7 +91,7 @@ class PromotionControllerTest extends TestCase
         $promotion = $response->json(); // Récupérer l'utilisateur créé dans la réponse
 
         $dataEdit = [
-                'nom' => 'Promo editer'
+            'fin' => now()->year, // Obtenir l'année actuelle + 1
             // Ajoutez d'autres données à modifier au besoin
         ];
 
@@ -102,7 +103,7 @@ class PromotionControllerTest extends TestCase
         $updatedPromotionResponse = $this->json('get', "api/promotions/{$promotion['id']}")
             ->assertStatus(200)
             ->assertJson([
-                'nom' => 'Promo editer'
+                "fin" =>now()->year
                 // Ajoutez d'autres champs que vous avez modifiés
             ]);
     }
@@ -111,8 +112,7 @@ class PromotionControllerTest extends TestCase
     {
 
         $payload = [
-            'nom' => 'Science',
-            'prix' => 250,
+            'fin'=>now()->year,
         ];
 
         $this->json('put', 'api/promotions/0', $payload)
@@ -123,10 +123,12 @@ class PromotionControllerTest extends TestCase
     /** @test */
     public function it_can_delete_a_promotion()
     {
+        $currentYear = now()->year;
+        $nextYear = now()->addYear()->year;
         $data = [
             'debut' => now()->year, // Obtenir uniquement l'année actuelle
             'fin' => now()->addYear()->year, // Obtenir l'année actuelle + 1
-            'nom' => 'Promo 2023',
+
         ];
 
         // Enregistrer l'utilisateur et récupérer la réponse JSON
@@ -179,7 +181,8 @@ class PromotionControllerTest extends TestCase
 //
 //    /** @test */
 //    public function it_can_belong_to_multiple_eleves()
-//    {
+//    {            'prix' => 250,
+
 //        $promotion = Promotion::factory()->create();
 //        $eleves = Eleve::factory(3)->create();
 //
@@ -194,7 +197,7 @@ class PromotionControllerTest extends TestCase
 //        $data = [
 //            'debut' => now(),
 //            'fin' => now()->addYear(),
-//            'nom' => 'Promo 2023',
+
 //        ];
 //
 //        $promotion = new Promotion($data);

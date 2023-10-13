@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Promotion;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -17,37 +18,24 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
-        $admin_role = Role::create(['name' => 'admin']);
-        $user_role = Role::create(['name' => 'user']);
+        $admin_role = Role::create(['name' => 'superadmin']);
         $permission = Permission::create(['name' => 'delect']);
         $data = [
+            'passwordinit' => '90145781', // mot de passe init par défaut
             'nom' => 'Boubacar',
-            'role' => 'admin',
+            'role' => 'superadmin',
             'prenom' => 'Mounkaila',
             'username' => 'mounkaila144',
-            'password' => bcrypt('secret')
+            'password' => bcrypt('90145781')
         ];
-        $dataeleve = [
 
-            'nom' => 'Boubacar',
-            'role' => 'eleve',
-            'prenom' => 'latifa',
-            'username' => 'latifa144',
-            'password' => bcrypt('secret')
-        ];
-        $dataprof = [
-            'nom' => 'Jibril',
-            'role' => 'prof',
-            'prenom' => 'maarif',
-            'username' => 'jibril144',
-            'password' => bcrypt('secret')
-        ];
         $admin_role->givePermissionTo($permission);
         $admin=User::create($data);
-        $eleve=User::create($dataeleve);
-        $prof=User::create($dataprof);
+Promotion::create([
+    'debut' => now()->year, // Obtenir uniquement l'année actuelle
+    'fin' => now()->addYear()->year, // Obtenir l'année actuelle + 1
+]);
         $admin->assignRole($admin_role);
-        $prof->assignRole($user_role);
-        $eleve->assignRole($user_role);
+
     }
 }

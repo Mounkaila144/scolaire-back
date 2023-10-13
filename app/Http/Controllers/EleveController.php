@@ -11,12 +11,24 @@ class EleveController extends Controller
 {
     public function index()
     {
+
         $depense = Eleve::all();
         return response()->json($depense);
     }
 
+    public function filterByClasse($id)
+    {
+
+        if (!$id) {
+            return response()->json(['error' => 'Le paramètre id est requis'], 400);
+        }
+
+        $eleves = Eleve::with(['user', 'classe'])->where('classe_id', $id)->get();
+        return response()->json($eleves);
+    }
     public function store(Request $request)
     {
+        $promotionId = $request->header('X-Promotion');
 
         if (Classe::exists()) {
         $requiredFields = [
@@ -26,7 +38,6 @@ class EleveController extends Controller
             'nationalite',
             'genre',
             'classe_id',
-            'promotion_id',
 //            'user_id'
         ]; // Champs requis
         $missingFields = [];
@@ -39,7 +50,7 @@ class EleveController extends Controller
 
         if (!empty($missingFields)) {
             $errorMessage = count($missingFields) > 1 ? 'Les champs suivants sont manquants : ' : 'Le champ suivant est manquant : ';
-            $errorMessage .= implode(', ', $missingFields);
+            $errorMessage = implode(', ', $missingFields);
 
             return $this->errorResponse(
                 $errorMessage,
@@ -60,7 +71,6 @@ class EleveController extends Controller
         $eleve = Eleve::create($data);
         $eleve->save();
             // Associer la promotion choisie à l'élève
-            $promotionId = $request->input('promotion_id');
             $promotion = Promotion::findOrFail($promotionId);
             $eleve->promotions()->attach($promotion);
             // Load the "classe" relationship
@@ -91,7 +101,28 @@ class EleveController extends Controller
     public function update(Request $request, $id)
     {
         $eleve = Eleve::findOrFail($id);
+
+        // Mise à jour des champs fournis dans la requête
         $eleve->update($request->all());
+
+//        // Si un nouvel identifiant de promotion est fourni, mettez à jour la relation
+//        if ($promotionId) {
+//            $promotion = Promotion::findOrFail($promotionId);
+//            $eleve->promotions()->sync($promotion);
+//        }
+
+        // Mise à jour optionnelle de l'utilisateur lié
+        if ($request->has('nom') || $request->has('prenom')) {
+            $user = $eleve->user;
+            $user->update([
+                'nom' => $request->input('nom', $user->nom),
+                'prenom' => $request->input('prenom', $user->prenom),
+                // Ajoutez d'autres champs ici si nécessaire
+            ]);
+        }
+
+        // Charger la relation "classe" pour l'inclure dans la réponse
+        $eleve->load('classe');
 
         return response()->json($eleve, 200);
     }

@@ -42,8 +42,9 @@ class ScolariteControllerTest extends TestCase
             'eleve_id' => $eleve->id,
             'promotion_id' => $promotion->id
         ];
-
-        $response = $this->post('/api/scolarites', $data);
+        $response = $this->withHeaders([
+            'X-Promotion' => $promotion->id,
+        ])->post('/api/scolarites', $data);
 
         $response->assertStatus(201);
         $this->assertDatabaseHas('scolarites', $data);

@@ -2,19 +2,20 @@
 
 namespace App\Models;
 
-use Faker\Factory as Faker;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Classe extends Model
+class Matiere extends Model
 {
     use HasFactory;
-    public function eleves()
+
+    public function classe()
     {
-        return $this->hasMany(Eleve::class);
+        return $this->belongsTo(Classe::class);
     }
     protected $fillable = [
         'nom',
-        'prix'
+        'coef',
+        'classe_id',
     ];
 }
