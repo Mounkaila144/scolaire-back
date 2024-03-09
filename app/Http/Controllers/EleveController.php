@@ -1,96 +1,98 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Helpers\ApiResponse;
+use App\Http\Requests\StoreEleveRequest;
 use App\Models\Classe;
 use App\Models\Eleve;
 use App\Models\Promotion;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Hash;
 
 class EleveController extends Controller
 {
+    public function __construct() {
+        $this->middleware('permission:admin');
+    }
     public function index()
     {
 
-        $depense = Eleve::all();
-        return response()->json($depense);
+        $eleve = Eleve::with(['user', 'classe'])->get();
+        return ApiResponse::success($eleve);
     }
 
     public function filterByClasse($id)
     {
 
         if (!$id) {
-            return response()->json(['error' => 'Le paramètre id est requis'], 400);
+            return ApiResponse::notFound('Le paramètre id est requis');
         }
 
         $eleves = Eleve::with(['user', 'classe'])->where('classe_id', $id)->get();
-        return response()->json($eleves);
+        return ApiResponse::success($eleves);
     }
-    public function store(Request $request)
+    public function store(StoreEleveRequest $request)
     {
-        $promotionId = $request->header('X-Promotion');
+        $eleve = new Eleve($request->validated());
+        $username = $this->generateUniqueUsername($request->input('prenom'));
 
-        if (Classe::exists()) {
-        $requiredFields = [
-            'number',
-            'adresse',
-            'birth',
-            'nationalite',
-            'genre',
-            'classe_id',
-//            'user_id'
-        ]; // Champs requis
-        $missingFields = [];
-
-        foreach ($requiredFields as $field) {
-            if (is_null($request->input($field))) {
-                $missingFields[] = $field;
-            }
-        }
-
-        if (!empty($missingFields)) {
-            $errorMessage = count($missingFields) > 1 ? 'Les champs suivants sont manquants : ' : 'Le champ suivant est manquant : ';
-            $errorMessage = implode(', ', $missingFields);
-
-            return $this->errorResponse(
-                $errorMessage,
-                Response::HTTP_BAD_REQUEST
-            );
-        }
-        $userController = new UserController();
-        $eleverequest=[
+        $password = $this->generateNumericPassword(8);
+        $user = User::create([
             'nom' => $request->input('nom'), // Utilisez 'input' pour accéder aux valeurs
             'prenom' => $request->input('prenom'),
-            'role' => "eleve",
-        ];
-        $userResponse = $userController->store(new Request($eleverequest));
-        // Une fois que l'utilisateur est créé, vous pouvez récupérer l'utilisateur nouvellement créé
-        $user = $userResponse->original['user'];
-        $data = $request->all();
-        $data["user_id"] = $user->id;
-        $eleve = Eleve::create($data);
+            'username' => $username,
+            'password' => Hash::make($password),
+          // Assurez-vous que le champ "passwordinit" existe dans le modèle
+        ]);
+        $eleve->user_id = $user->id; // Assurez-vous que le modèle Eleve a un champ user_id
+        $eleve->passwordinit = $password; // Assurez-vous que le modèle Eleve a un champ user_id
+        // Sauvegarde de l'élève dans la base de données
         $eleve->save();
-            // Associer la promotion choisie à l'élève
+
+        // Ajout de l'élève à des promotions si un identifiant de promotion est fourni
+        if ($promotionId = $request->header('X-Promotion')) {
+            // Assurez-vous que le modèle Eleve a une relation many-to-many avec Promotion
             $promotion = Promotion::findOrFail($promotionId);
             $eleve->promotions()->attach($promotion);
-            // Load the "classe" relationship
-            $eleve->load('classe');
+        }
 
-            return response()->json($eleve, 201);
+        // Charger les relations nécessaires pour la réponse, si nécessaire
+        $eleve->load('user', 'promotions');
+
+        // Retourner une réponse API avec le nouvel élève créé
+        return ApiResponse::created($eleve, 'Élève créé avec succès');
     }
-        else{
-        return $this->errorResponse(
-            "Aucune eleve n'exist ans la base de donner",
-            Response::HTTP_BAD_REQUEST
-        );
+    private function generateNumericPassword($length)
+    {
+        $password = '';
+
+        for ($i = 0; $i < $length; $i++) {
+            $password .= mt_rand(0, 9);
+        }
+
+        return $password;
     }
+    private function generateUniqueUsername($prenom)
+    {
+        $username = strtolower($prenom);
+        $i = 1;
+
+        // Vérifier l'unicité de l'username
+        while (User::where('username', $username)->exists()) {
+            $username = strtolower($prenom . $i);
+            $i++;
+        }
+
+        return $username;
     }
     public function show($id)
     {
 
-        $Eleve= Eleve::findOrFail($id);
+        $Eleve= Eleve::with(['user', 'classe'])->findOrFail($id);
 
-        Return response()->json($Eleve);
+        Return ApiResponse::success($Eleve);
     }
     /**
      * Show the form for editing the specified resource.
@@ -124,7 +126,7 @@ class EleveController extends Controller
         // Charger la relation "classe" pour l'inclure dans la réponse
         $eleve->load('classe');
 
-        return response()->json($eleve, 200);
+        return ApiResponse::success($eleve, 200);
     }
 
     public function destroy($id)
@@ -137,7 +139,7 @@ class EleveController extends Controller
         // Now delete the eleve
         $eleve->delete();
 
-        return response()->json(null, 204);
+        return ApiResponse::noContent();
     }
 
 }

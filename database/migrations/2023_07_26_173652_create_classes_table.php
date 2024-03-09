@@ -17,6 +17,9 @@ return new class extends Migration
             $table->id();
             $table->string('nom');
             $table->integer('prix');
+            $table->unsignedBigInteger('promotion_id');
+            $table->foreign('promotion_id')->references('id')->on('promotions')->onDelete('cascade');
+
             $table->timestamps();
         });
     }

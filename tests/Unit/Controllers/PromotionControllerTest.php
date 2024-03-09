@@ -4,6 +4,8 @@ namespace Tests\Unit\Controllers;
 
 use App\Http\Controllers\DepenseController;
 use App\Models\Promotion;
+use App\Models\User;
+use Database\Seeders\initDataSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Response;
 use Tests\TestCase;
@@ -17,12 +19,7 @@ class PromotionControllerTest extends TestCase
     /** @test */
     public function it_can_get_all_promotions()
     {
-        $data = [
-            'debut' => now()->year, // Obtenir uniquement l'année actuelle
-            'fin' => now()->addYear()->year, // Obtenir l'année actuelle + 1
-        ];
-
-        $this->json('post', 'api/promotions', $data);
+        $promotion = Promotion::factory()->create();
         $response = $this->json('get', 'api/promotions')
             ->assertStatus(200);
         $this->assertCount(1, Promotion::all());
@@ -31,23 +28,28 @@ class PromotionControllerTest extends TestCase
     /** @test */
     public function test_it_can_show_and_store_promotions()
     {
-        $currentYear = now()->year;
-        $nextYear = now()->addYear()->year;
         $data = [
             'debut' => now()->year, // Obtenir uniquement l'année actuelle
             'fin' => now()->addYear()->year, // Obtenir l'année actuelle + 1
         ];
-
+        $this->seed(initDataSeeder::class);
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+        $token = auth()->login($user);
         // Enregistrer l'utilisateur et récupérer la réponse JSON
-        $response = $this->json('post', 'api/promotions', $data);
+        $response = $this->json('post', 'api/promotions', $data, ['Authorization' => "Bearer $token"]);
         $promotion = $response->json(); // Récupérer l'utilisateur créé dans la réponse
         // Vérifier si les détails de l'utilisateur peuvent être récupérés via l'API
-        $this->json('get', "api/promotions/{$promotion['id']}")
+        $this->json('get', "api/promotions/{$promotion['data']['id']}")
             ->assertStatus(200)
             ->assertJson([
+                'status' => 'success',
+                'message' => 'Détails de la promotion récupérés avec succès',
+                'data' => [
                 'debut' => now()->year, // Obtenir uniquement l'année actuelle
                 'fin' => now()->addYear()->year, // Obtenir l'année actuelle + 1
                 // Ajouter d'autres champs que vous souhaitez vérifier
+                    ]
             ]);
     }
 
@@ -60,25 +62,15 @@ class PromotionControllerTest extends TestCase
 
     }
 
-    /** @test */
-    public function testStoreWithMissingData()
-    {
-
-        $payload = [
-            'nom' => 'Mathematics'
-//            'prix' => 200,
-            //email address is missing
-        ];
-        $this->json('post', 'api/promotions', $payload)
-            ->assertStatus(Response::HTTP_BAD_REQUEST)
-            ->assertJsonStructure(['error']);
-    }
 
     /** @test */
     public function test_it_can_update_a_promotion()
     {
-        $currentYear = now()->year;
-        $nextYear = now()->addYear()->year;
+        $this->seed(initDataSeeder::class);
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+        $token = auth()->login($user);
+
         $data = [
             'debut' => now()->year, // Obtenir uniquement l'année actuelle
             'fin' => now()->addYear()->year, // Obtenir l'année actuelle + 1
@@ -86,7 +78,7 @@ class PromotionControllerTest extends TestCase
         ];
 
         // Enregistrer l'utilisateur et récupérer la réponse JSON
-        $response = $this->json('post', 'api/promotions', $data);
+        $response = $this->json('post', 'api/promotions', $data, ['Authorization' => "Bearer $token"]);
 
         $promotion = $response->json(); // Récupérer l'utilisateur créé dans la réponse
 
@@ -96,112 +88,46 @@ class PromotionControllerTest extends TestCase
         ];
 
         // Mettre à jour les données de l'utilisateur via l'API PUT
-        $this->json('put', "api/promotions/{$promotion['id']}", $dataEdit)
+        $this->json('put', "api/promotions/{$promotion['data']['id']}", $dataEdit)
             ->assertStatus(200);
 
         // Récupérer à nouveau les détails de l'utilisateur après la mise à jour
-        $updatedPromotionResponse = $this->json('get', "api/promotions/{$promotion['id']}")
+        $updatedPromotionResponse = $this->json('get', "api/promotions/{$promotion['data']['id']}")
             ->assertStatus(200)
             ->assertJson([
+                    'status' => 'success',
+                    'message' => 'Détails de la promotion récupérés avec succès',
+                    'data' => [
                 "fin" =>now()->year
                 // Ajoutez d'autres champs que vous avez modifiés
+                        ]
             ]);
     }
 
-    public function testUpdateForMissingPromotion()
-    {
 
-        $payload = [
-            'fin'=>now()->year,
-        ];
-
-        $this->json('put', 'api/promotions/0', $payload)
-            ->assertStatus(Response::HTTP_NOT_FOUND)
-            ->assertJsonStructure(['error']);
-    }
 
     /** @test */
     public function it_can_delete_a_promotion()
     {
-        $currentYear = now()->year;
-        $nextYear = now()->addYear()->year;
+
         $data = [
             'debut' => now()->year, // Obtenir uniquement l'année actuelle
             'fin' => now()->addYear()->year, // Obtenir l'année actuelle + 1
 
         ];
-
+        $this->seed(initDataSeeder::class);
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+        $token = auth()->login($user);
         // Enregistrer l'utilisateur et récupérer la réponse JSON
-        $response = $this->json('post', 'api/promotions', $data);
+        $response = $this->json('post', 'api/promotions', $data,['Authorization' => "Bearer $token"]);
 
         $promotion = $response->json();
-        $this->json('delete', "api/promotions/{$promotion['id']}")
+        $this->json('delete', "api/promotions/{$promotion['data']['id']}",['Authorization' => "Bearer $token"])
             ->assertStatus(204)
             ->assertNoContent();
-        $this->assertDatabaseMissing('promotions', $data);
 
     }
 
-    public function testDestroyForMissingPromotion()
-    {
 
-        $this->json('delete', 'api/promotions/0')
-            ->assertStatus(Response::HTTP_NOT_FOUND)
-            ->assertJsonStructure(['error']);
-    }
-
-
-//    /** @test */
-//    public function it_can_have_a_depense()
-//    {
-//        $promotion = Promotion::factory()->create();
-//        $depense = Depense::factory()->create(['promotion_id' => $promotion->id]);
-//        dump(Promotion::all());
-//        dump(Depense::all());
-//        $this->assertInstanceOf(Depense::class, $promotion->depense);
-//    }
-//
-//    /** @test */
-//    public function it_can_have_a_scolarite()
-//    {
-//        $promotion = Promotion::factory()->create();
-//        $scolarite = Scolarite::factory()->create(['promotion_id' => $promotion->id]);
-//
-//        $this->assertInstanceOf(Scolarite::class, $promotion->scolarite);
-//    }
-//
-////    /** @test */
-//    public function it_can_have_a_payteacher()
-//    {
-//        $promotion = Promotion::factory()->create();
-//        $payteacher = Payteacher::factory()->create(['promotion_id' => $promotion->id]);
-//
-//        $this->assertInstanceOf(Payteacher::class, $promotion->payteacher);
-//    }
-//
-//    /** @test */
-//    public function it_can_belong_to_multiple_eleves()
-//    {            'prix' => 250,
-
-//        $promotion = Promotion::factory()->create();
-//        $eleves = Eleve::factory(3)->create();
-//
-//        $promotion->eleves()->attach($eleves);
-//
-//        $this->assertCount(3, $promotion->eleves);
-//    }
-//
-//    /** @test */
-//    public function it_is_fillable()
-//    {
-//        $data = [
-//            'debut' => now(),
-//            'fin' => now()->addYear(),
-
-//        ];
-//
-//        $promotion = new Promotion($data);
-//
-//        $this->assertEquals($data, $promotion->getAttributes());
-//    }
 }

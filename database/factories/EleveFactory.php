@@ -29,6 +29,7 @@ class EleveFactory extends Factory
             'number' => $this->faker->unique()->randomNumber(5),
             'adresse' => $this->faker->address,
             'birth' => $this->faker->date(),
+            'passwordinit' => '444444444',
             'nationalite' => $this->faker->countryCode,
             'genre' => $this->faker->randomElement(['M', 'F']),
             'classe_id' => Classe::factory(),

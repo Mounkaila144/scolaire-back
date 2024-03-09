@@ -17,11 +17,13 @@ return new class extends Migration
             $table->id();
             $table->integer('note');
             $table->integer('sur');
-            $table->string('type');
+            $table->enum('type',['interogation','devoir','composition','exament']);
             $table->unsignedBigInteger('matiere_id');
             $table->foreign('matiere_id')->references('id')->on('matieres')->onDelete('cascade');
             $table->unsignedBigInteger('eleve_id');
             $table->foreign('eleve_id')->references('id')->on('eleves')->onDelete('cascade');
+            $table->unsignedBigInteger('promotion_id');
+            $table->foreign('promotion_id')->references('id')->on('promotions')->onDelete('cascade');
 
             $table->timestamps();
         });

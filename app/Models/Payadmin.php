@@ -18,6 +18,7 @@ public function user()
         return $this->belongsTo(User::class);
     }
 
+
     protected $fillable = [
         'prix',
         'user_id',

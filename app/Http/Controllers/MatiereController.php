@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Helpers\ApiResponse;
 use App\Models\Professeur;
 use App\Models\Matiere;
 use Illuminate\Http\Request;
@@ -8,10 +9,13 @@ use Illuminate\Http\Response;
 
 class MatiereController extends Controller
 {
+    public function __construct() {
+        $this->middleware('permission:admin')->except("index","show");
+    }
     public function index()
     {
-        $matiere = Matiere::with(["classe"])->get();
-        return response()->json($matiere);
+        $matiere = Matiere::with(["classe",'professeur'])->get();
+        return ApiResponse::success($matiere);
     }
 
     public function store(Request $request)
@@ -20,6 +24,7 @@ class MatiereController extends Controller
             'nom' => 'required',
             'coef' => 'required',
             'classe_id' => 'required',
+            'professeur_id' => 'required',
         ]);
 
 
@@ -27,18 +32,19 @@ class MatiereController extends Controller
             'nom' => $request->nom,
             'coef' => $request->coef,
             'classe_id' => $request->classe_id,
+            'professeur_id' => $request->professeur_id,
         ];
 
-        $evaluation = Matiere::create($data);
+        $matiere = Matiere::create($data);
 
-        return response()->json($evaluation, 201);
+        return ApiResponse::created($matiere);
     }
     public function show($id)
     {
 
         $Matiere= Matiere::findOrFail($id);
 
-        Return response()->json($Matiere);
+        Return ApiResponse::success($Matiere);
     }
     /**
      * Show the form for editing the specified resource.
@@ -55,13 +61,13 @@ class MatiereController extends Controller
 
         $matiere->update($data);
 
-        return response()->json($matiere, 200);
+        return ApiResponse::success($matiere);
     }
 
     public function destroy($id)
     {
         $matiere = Matiere::findOrFail($id);
         $matiere->delete();
-        return response()->json(null, 204);
+        return ApiResponse::noContent();
     }
 }

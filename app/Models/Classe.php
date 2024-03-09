@@ -13,8 +13,23 @@ class Classe extends Model
     {
         return $this->hasMany(Eleve::class);
     }
+public function promotion()
+    {
+        return $this->belongsTo(Promotion::class);
+    }
+    public function matieres()
+    {
+        return $this->hasMany(Matiere::class);
+    }
+    public function schedules()
+    {
+        return $this->hasMany(Schedule::class);
+    }
+
+
     protected $fillable = [
         'nom',
-        'prix'
+        'prix',
+        'promotion_id'
     ];
 }

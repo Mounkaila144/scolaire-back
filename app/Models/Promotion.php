@@ -31,6 +31,7 @@ class Promotion extends Model
     }
 
 
+
     protected $fillable = [
         'debut',
         'fin'

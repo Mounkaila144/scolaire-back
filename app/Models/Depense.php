@@ -14,6 +14,7 @@ class Depense extends Model
         return $this->belongsTo(Promotion::class);
     }
 
+
     protected $fillable = [
         'details',
         'prix',

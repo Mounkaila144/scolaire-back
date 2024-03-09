@@ -28,9 +28,11 @@ class MatiereFactory extends Factory
         // Notez que nous utilisons des liaisons directes pour eleve_id et promotion_id.
         // Vous devez donc avoir des éléments existants dans les tables Eleve et Promotion pour que cela fonctionne correctement.
         return [
+            'professeur_id' =>  Professeur::factory(), // Générer un nombre aléatoire pour le prix
             'nom' => $this->faker->name(), // Générer un nombre aléatoire pour le prix
             'coef' => 20, // Générer un nombre aléatoire pour le prix
             'classe_id' => Classe::factory(),
+            'promotion_id' => Promotion::factory(),
         ];
     }
 }

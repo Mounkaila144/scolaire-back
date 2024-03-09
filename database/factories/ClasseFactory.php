@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Classe;
+use App\Models\Promotion;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ClasseFactory extends Factory
@@ -13,7 +14,8 @@ class ClasseFactory extends Factory
     {
         return [
             'nom' => $this->faker->word,
-            'prix' => $this->faker->numberBetween(100, 1000),
+            'prix' => 100000,
+            'promotion_id' => Promotion::factory(),
         ];
     }
 }

@@ -1,68 +1,68 @@
 <?php
+
 namespace App\Http\Controllers;
 
+use App\Helpers\ApiResponse;
 use App\Models\Classe;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\Response;
 
 class ClassController extends Controller
 {
+    public function __construct()
+    {
+        // Utiliser le middleware 'permission' avec des groupes de permissions
+        $this->middleware('permission:admin|prof|eleve')->only(['show']);
+        $this->middleware('permission:admin')->except(['show']);
+    }
+
     public function index()
     {
         $classes = Classe::withCount('eleves')->get();
-        return response()->json($classes);
+        return ApiResponse::success($classes, 'Liste des classes récupérée avec succès');
     }
 
 
     public function store(Request $request)
     {
+        $champsRequis = ['nom', 'prix']; // Champs requis
+        $champsManquants = [];
 
-        $requiredFields = ['nom', 'prix']; // Champs requis
-        $missingFields = [];
-
-        foreach ($requiredFields as $field) {
-            if (is_null($request->input($field))) {
-                $missingFields[] = $field;
+        foreach ($champsRequis as $champ) {
+            if (is_null($request->input($champ))) {
+                $champsManquants[] = $champ;
             }
         }
 
-        if (!empty($missingFields)) {
-            $errorMessage = count($missingFields) > 1 ? 'Les champs suivants sont manquants : ' : 'Le champ suivant est manquant : ';
-            $errorMessage .= implode(', ', $missingFields);
+        if (!empty($champsManquants)) {
+            $messageErreur = count($champsManquants) > 1 ? 'Les champs suivants sont manquants : ' : 'Le champ suivant est manquant : ';
+            $messageErreur .= implode(', ', $champsManquants);
 
-            return $this->errorResponse(
-                $errorMessage,
-                Response::HTTP_BAD_REQUEST
-            );
+            return ApiResponse::error($messageErreur, [], Response::HTTP_BAD_REQUEST);
         }
+
         $classe = Classe::create($request->all());
-        $classe->save();
-        return response()->json($classe, 201);
+        return ApiResponse::created($classe, 'Classe créée avec succès');
     }
+
     public function show($id)
     {
         $classe = Classe::withCount('eleves')->findOrFail($id);
-        return response()->json($classe);
+        return ApiResponse::success($classe, 'Détails de la classe récupérés avec succès');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param $id
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function update(Request $request, $id)
     {
         $classe = Classe::findOrFail($id);
         $classe->update($request->all());
-
-        return response()->json($classe, 200);
+        return ApiResponse::success($classe, 'Classe mise à jour avec succès');
     }
+
 
     public function destroy($id)
     {
         $classe = Classe::findOrFail($id);
         $classe->delete();
-        return response()->json(null, 204);
+        return ApiResponse::noContent('Classe supprimée avec succès');
     }
 }

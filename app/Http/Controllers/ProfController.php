@@ -1,78 +1,80 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Helpers\ApiResponse;
+use App\Http\Requests\StoreProfRequest;
 use App\Models\Classe;
 use App\Models\Professeur;
 use App\Models\Promotion;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Hash;
 
 class ProfController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:admin')->except(['show']);
+    }
     public function index()
     {
         $prof = Professeur::with(['user'])->get();
-        return response()->json($prof);
+        return ApiResponse::success($prof);
     }
-
-    public function store(Request $request)
+    private function generateNumericPassword($length)
     {
+        $password = '';
 
-        if (Classe::exists()) {
-        $requiredFields = [
-            'number',
-            'adresse',
-            'birth',
-            'nationalite',
-            'genre',
-//            'user_id'
-        ]; // Champs requis
-        $missingFields = [];
-
-        foreach ($requiredFields as $field) {
-            if (is_null($request->input($field))) {
-                $missingFields[] = $field;
-            }
+        for ($i = 0; $i < $length; $i++) {
+            $password .= mt_rand(0, 9);
         }
 
-        if (!empty($missingFields)) {
-            $errorMessage = count($missingFields) > 1 ? 'Les champs suivants sont manquants : ' : 'Le champ suivant est manquant : ';
-            $errorMessage .= implode(', ', $missingFields);
+        return $password;
+    }
+    private function generateUniqueUsername($prenom)
+    {
+        $username = strtolower($prenom);
+        $i = 1;
 
-            return $this->errorResponse(
-                $errorMessage,
-                Response::HTTP_BAD_REQUEST
-            );
+        // Vérifier l'unicité de l'username
+        while (User::where('username', $username)->exists()) {
+            $username = strtolower($prenom . $i);
+            $i++;
         }
-        $userController = new UserController();
-        $profrequest=[
+
+        return $username;
+    }
+    public function store(StoreProfRequest $request)
+    {
+        $prof = new Professeur($request->validated());
+        $username = $this->generateUniqueUsername($request->input('prenom'));
+
+        $password = $this->generateNumericPassword(8);
+        $user = User::create([
             'nom' => $request->input('nom'), // Utilisez 'input' pour accéder aux valeurs
             'prenom' => $request->input('prenom'),
-            'role' => "prof",
-        ];
-        $userResponse = $userController->store(new Request($profrequest));
-        // Une fois que l'utilisateur est créé, vous pouvez récupérer l'utilisateur nouvellement créé
-        $user = $userResponse->original['user'];
-        $data = $request->all();
-        $data["user_id"] = $user->id;
-        $prof = Professeur::create($data);
+            'username' => $username,
+            'password' => Hash::make($password),
+            // Assurez-vous que le champ "passwordinit" existe dans le modèle
+        ]);
+        $prof->user_id = $user->id; // Assurez-vous que le modèle Eleve a un champ user_id
+        $prof->passwordinit = $password; // Assurez-vous que le modèle Eleve a un champ user_id
+        // Sauvegarde de l'élève dans la base de données
         $prof->save();
 
-            return response()->json($prof, 201);
-    }
-        else{
-        return $this->errorResponse(
-            "Aucune prof n'exist ans la base de donner",
-            Response::HTTP_BAD_REQUEST
-        );
-    }
+        // Charger les relations nécessaires pour la réponse, si nécessaire
+        $prof->load('user');
+
+        // Retourner une réponse API avec le nouvel élève créé
+        return ApiResponse::created($prof, 'Prof créé avec succès');
     }
     public function show($id)
     {
 
         $Professeur= Professeur::findOrFail($id);
 
-        Return response()->json($Professeur);
+        Return ApiResponse::success($Professeur);
     }
     /**
      * Show the form for editing the specified resource.
@@ -85,7 +87,7 @@ class ProfController extends Controller
         $prof = Professeur::findOrFail($id);
         $prof->update($request->all());
 
-        return response()->json($prof, 200);
+        return ApiResponse::success($prof);
     }
 
     public function destroy($id)
@@ -95,7 +97,7 @@ class ProfController extends Controller
         // Now delete the prof
         $prof->delete();
 
-        return response()->json(null, 204);
+        return ApiResponse::noContent();
     }
 
 }

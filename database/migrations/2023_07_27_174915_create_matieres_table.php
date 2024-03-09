@@ -17,9 +17,13 @@ return new class extends Migration
             $table->id();
             $table->string('nom');
             $table->integer('coef');
+            $table->foreignId('professeur_id')->constrained()->onDelete('cascade');
             $table->unsignedBigInteger('classe_id');
             $table->foreign('classe_id')->references('id')->on('classes')->onDelete('cascade');
             $table->timestamps();
+            $table->unsignedBigInteger('promotion_id');
+            $table->foreign('promotion_id')->references('id')->on('promotions')->onDelete('cascade');
+
         });
     }
 

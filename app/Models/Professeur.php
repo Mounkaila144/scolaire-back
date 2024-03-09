@@ -13,6 +13,15 @@ class Professeur extends Model
     {
         return $this->belongsTo(User::class);
     }
+    public function cour()
+    {
+        return $this->hasMany(Cour::class);
+    }
+    public function payteacher()
+    {
+        return $this->hasMany(Payteacher::class);
+    }
+
 
 
     protected $fillable = [
@@ -21,6 +30,7 @@ class Professeur extends Model
         'birth',
         'nationalite',
         'genre',
-        'user_id'
+        'user_id',
+
     ];
 }

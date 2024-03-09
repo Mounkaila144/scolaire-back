@@ -4,6 +4,8 @@ namespace Tests\Unit\Controllers;
 
 use App\Http\Controllers\DepenseController;
 use App\Models\Classe;
+use App\Models\User;
+use Database\Seeders\initDataSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Response;
 use Tests\TestCase;
@@ -11,14 +13,23 @@ use Tests\TestCase;
 class ClassControllerTest extends TestCase
 {
     use RefreshDatabase;
-
+    protected function setUp(): void {
+        parent::setUp();
+        // Exécute tous les seeders disponibles
+        $this->seed(initDataSeeder::class);
+    }
     public function testIndexReturnsDataInValidFormat()
     {
-        $response = $this->json('get', 'api/classes');
-
+        $this->seed(initDataSeeder::class);
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+        $token = auth()->login($user);
+        $response = $this->json('get', 'api/classes',[], ['Authorization' => "Bearer $token"]);
         $response->assertStatus(200)
             ->assertJsonStructure([
-                '*' => ['id', 'nom','eleves_count', 'prix', 'created_at', 'updated_at'],
+                'status',
+                'message',
+                'data'
             ]);
     }
 
@@ -31,7 +42,10 @@ class ClassControllerTest extends TestCase
             'prix' => 200,
             // Add more data as needed
         ];
-        $this->postJson('/api/classes', $data);
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+        $token = auth()->login($user);
+        $this->postJson('/api/classes', $data, ['Authorization' => "Bearer $token"]);
 
         $response = $this->getJson('/api/classes');
 
@@ -41,23 +55,32 @@ class ClassControllerTest extends TestCase
     }
 
     /** @test */
+
     public function it_can_show_classes()
     {
         $classe = Classe::factory()->create();
-
-        $this->json('get', "api/classes/$classe->id")
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+        $token = auth()->login($user);
+        $this->json('get', "api/classes/{$classe->id}", ['Authorization' => "Bearer $token"])
             ->assertStatus(200)
             ->assertJson([
-                'nom' => $classe->nom,
-                'prix' => $classe->prix,
-                'eleves_count'=>0
-                // Add other fields you want to check for
+                'status' => 'success',
+                'message' => 'Détails de la classe récupérés avec succès',
+                'data' => [
+                    'nom' => $classe->nom,
+                    'prix' => $classe->prix,
+                    'eleves_count' => 0,
+                    // Ajoutez d'autres champs si nécessaire
+                ]
             ]);
-
     }
-    public function testShowForMissingClasse() {
 
-        $this->json('get', "api/classes/0")
+    public function testShowForMissingClasse() {
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+        $token = auth()->login($user);
+        $this->json('get', "api/classes/0", ['Authorization' => "Bearer $token"])
             ->assertStatus(Response::HTTP_NOT_FOUND)
             ->assertJsonStructure(['error']);
 
@@ -71,13 +94,16 @@ class ClassControllerTest extends TestCase
             'prix' => 200,
             // Add more data as needed
         ];
-
-        $this->json('post', 'api/classes', $data)
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+        $token = auth()->login($user);
+        $this->json('post', 'api/classes', $data, ['Authorization' => "Bearer $token"])
             ->assertStatus(201)
-            ->assertJsonStructure(
-                ['id', 'nom', 'prix', 'created_at', 'updated_at'],
-
-            );
+            ->assertJsonStructure([
+                'status',
+                'message',
+                'data' => ['id', 'nom', 'prix', 'created_at', 'updated_at'],
+            ]);
         $this->assertDatabaseHas('classes', $data);
     }
     public function testStoreWithMissingData() {
@@ -87,9 +113,11 @@ class ClassControllerTest extends TestCase
 //            'prix' => 200,
             //email address is missing
         ];
-        $this->json('post', 'api/classes', $payload)
-            ->assertStatus(Response::HTTP_BAD_REQUEST)
-            ->assertJsonStructure(['error']);
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+        $token = auth()->login($user);
+        $this->json('post', 'api/classes', $payload, ['Authorization' => "Bearer $token"])
+            ->assertStatus(Response::HTTP_BAD_REQUEST);
     }
 
     /** @test */
@@ -105,8 +133,19 @@ class ClassControllerTest extends TestCase
             'prix' => 250,
             // Add more dataEdit as needed
         ];
-//dd($classe->id);
-        $this->json('put', "api/classes/$classe->id", $dataEdit)
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+        $token = auth()->login($user);
+        $this->json('put', "api/classes/$classe->id", $dataEdit, ['Authorization' => "Bearer $token"])
+            ->assertJson([
+                'status' => 'success',
+                'message' => 'Classe mise à jour avec succès',
+                'data' => [
+                    'nom' => $dataEdit['nom'],
+                    'prix' => $dataEdit['prix']
+                    // Ajoutez d'autres champs si nécessaire
+                ]
+            ])
             ->assertStatus(200);
     }
     public function testUpdateForMissingUser() {
@@ -115,8 +154,10 @@ class ClassControllerTest extends TestCase
             'nom' => 'Science',
             'prix' => 250,
         ];
-
-        $this->json('put', 'api/classes/0', $payload)
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+        $token = auth()->login($user);
+        $this->json('put', 'api/classes/0', $payload, ['Authorization' => "Bearer $token"])
             ->assertStatus(Response::HTTP_NOT_FOUND)
             ->assertJsonStructure(['error']);
     }
@@ -128,16 +169,21 @@ class ClassControllerTest extends TestCase
             "nom" => "6em",
             "prix" => 5000
         ];
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+        $token = auth()->login($user);
         $classe = Classe::factory()->create($classeData);
-        $this->json('delete', "api/classes/$classe->id")
+        $this->json('delete', "api/classes/$classe->id",[], ['Authorization' => "Bearer $token"])
             ->assertStatus(204)
             ->assertNoContent();
         $this->assertDatabaseMissing('classes', $classeData);
 
     }
     public function testDestroyForMissingUser() {
-
-        $this->json('delete', 'api/classes/0')
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+        $token = auth()->login($user);
+        $this->json('delete', 'api/classes/0',[], ['Authorization' => "Bearer $token"])
             ->assertStatus(Response::HTTP_NOT_FOUND)
             ->assertJsonStructure(['error']);
     }

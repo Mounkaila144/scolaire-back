@@ -24,10 +24,11 @@ class Eleve extends Model
         return $this->belongsToMany(Promotion::class);
     }
 
-    public function scolarite()
+    public function scolarites()
     {
-        return $this->hasOne(Scolarite::class);
+        return $this->hasMany(Scolarite::class);
     }
+
 
     protected $fillable = [
         'number',
@@ -36,6 +37,7 @@ class Eleve extends Model
         'nationalite',
         'genre',
         'classe_id',
+        'passwordinit',
         'user_id'
     ];
 }

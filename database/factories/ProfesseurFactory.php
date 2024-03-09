@@ -31,6 +31,7 @@ class ProfesseurFactory extends Factory
             'adresse' => $this->faker->address,
             'birth' => $this->faker->date(),
             'nationalite' => $this->faker->countryCode,
+            'passwordinit' => '90145781',
             'genre' => $this->faker->randomElement(['M', 'F']),
             'user_id' => User::factory(),
         ];

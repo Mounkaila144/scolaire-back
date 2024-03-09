@@ -26,9 +26,7 @@ class UserFactory extends Factory
             'nom' => $this->faker->lastName,
             'prenom' => $this->faker->firstName,
             'username' => $this->faker->unique()->userName,
-            'role' => 'student', // exemple, vous pouvez ajuster selon vos besoins
             'password' => bcrypt('password'), // mot de passe par défaut
-            'passwordinit' => 'password', // mot de passe init par défaut
         ];
     }
 }

@@ -18,6 +18,7 @@ class Scolarite extends Model
         return $this->belongsTo(Eleve::class);
     }
 
+
     protected $fillable = [
         'prix',
         'eleve_id',

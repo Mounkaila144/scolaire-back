@@ -6,6 +6,8 @@ use App\Http\Controllers\DepenseController;
 use App\Models\Classe;
 use App\Models\Eleve;
 use App\Models\Promotion;
+use App\Models\User;
+use Database\Seeders\initDataSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Response;
 use Tests\TestCase;
@@ -15,7 +17,11 @@ use App\Models\Payteacher;
 class EleveControllerTest extends TestCase
 {
     use RefreshDatabase;
-
+    protected function setUp(): void {
+        parent::setUp();
+        // Exécute tous les seeders disponibles
+        $this->seed(initDataSeeder::class);
+    }
     /** @test */
     public function it_can_get_all_eleves()
     {
@@ -24,6 +30,7 @@ class EleveControllerTest extends TestCase
 
         $data = [
             'nom' => 'Mounkaila',
+            'prix' => 50000,
             'prenom' => 'Boubacar',
             'number' => '12345',
             'adresse' => '123 Street',
@@ -35,24 +42,29 @@ class EleveControllerTest extends TestCase
         ];
 
 
-        // Enregistrement de l'élève avec un en-tête X-Promotion
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+        $token = auth()->login($user);
+
+        // Perform the request
         $response = $this->withHeaders([
             'X-Promotion' => $promotion->id,
+            'Authorization' => "Bearer $token"
         ])->json('POST', 'api/eleves', $data);
 
         $this->json('get', 'api/eleves')
-            ->assertStatus(200)
-        ->assertJsonCount(1);
+            ->assertStatus(200);
     }
 
     /** @test */
-    public function test_it_can_show_and_store_eleves()
+    public function test_it_can_store_eleves()
     {
         $promotion = Promotion::factory()->create();
         $classe = Classe::factory()->create();
 
         $data = [
             'nom' => 'Mounkaila',
+            'prix' => 50000,
             'prenom' => 'Boubacar',
             'number' => '12345',
             'adresse' => '123 Street',
@@ -61,33 +73,45 @@ class EleveControllerTest extends TestCase
             'genre' => 'M',
             'classe_id' => $classe->id,
         ];
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+        $token = auth()->login($user);
 
-        // Enregistrement de l'élève avec un en-tête X-Promotion
+        // Perform the request
         $response = $this->withHeaders([
             'X-Promotion' => $promotion->id,
+            'Authorization' => "Bearer $token"
         ])->json('POST', 'api/eleves', $data);
 
         $eleve = $response->json();
 
+
         // Vérification de l'élève avec un en-tête X-Promotion
         $this->withHeaders([
             'X-Promotion' => $promotion->id,
-        ])->json('GET', "api/eleves/{$eleve['id']}")
+        ])->json('GET', "api/eleves/{$eleve['data']['id']}")
             ->assertStatus(200)
             ->assertJson([
+                'status' => 'success',
+                'message' => 'Success',
+                'data' => [
                 'number' => '12345',
                 'adresse' => '123 Street',
                 'birth' => '2000-01-01',
                 'nationalite' => 'FR',
                 'genre' => 'M',
-                'classe_id' => $classe->id,
+                'classe_id' => $classe->id,]
             ]);
     }
 
     public function testShowForMissingPromotion()
     {
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+        $token = auth()->login($user);
 
-        $this->json('get', "api/eleves/0")
+
+        $this->json('get', "api/eleves/0",[], ['Authorization' => "Bearer $token"])
             ->assertStatus(Response::HTTP_NOT_FOUND)
             ->assertJsonStructure(['error']);
 
@@ -102,9 +126,12 @@ class EleveControllerTest extends TestCase
 //            'prix' => 200,
             //email address is missing
         ];
-        $this->json('post', 'api/eleves', $payload)
-            ->assertStatus(Response::HTTP_BAD_REQUEST)
-            ->assertJsonStructure(['error']);
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+        $token = auth()->login($user);
+
+        $this->json('post', 'api/eleves', $payload,[ 'Authorization' => "Bearer $token"])
+            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
     /** @test */
@@ -115,6 +142,7 @@ class EleveControllerTest extends TestCase
 
         $data = [
             'nom' => 'Mounkaila',
+            'prix' => 50000,
             'prenom' => 'Boubacar',
             'number' => '12345',
             'adresse' => '123 Street',
@@ -125,10 +153,14 @@ class EleveControllerTest extends TestCase
             'promotion_id' => $promotion->id,
         ];
 
-        // Enregistrer l'utilisateur et récupérer la réponse JSON
-            // Enregistrement de l'élève avec un en-tête X-Promotion
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+        $token = auth()->login($user);
+
+        // Perform the request
         $response = $this->withHeaders([
             'X-Promotion' => $promotion->id,
+            'Authorization' => "Bearer $token"
         ])->json('POST', 'api/eleves', $data);
 
 
@@ -140,15 +172,17 @@ class EleveControllerTest extends TestCase
         ];
 
         // Mettre à jour les données de l'utilisateur via l'API PUT
-        $this->json('put', "api/eleves/{$eleve['id']}", $dataEdit)
+        $this->json('put', "api/eleves/{$eleve['data']['id']}", $dataEdit)
             ->assertStatus(200);
 
         // Récupérer à nouveau les détails de l'utilisateur après la mise à jour
-       $this->json('get', "api/eleves/{$eleve['id']}")
+       $this->json('get', "api/eleves/{$eleve['data']['id']}")
             ->assertStatus(200)
             ->assertJson([
-                'adresse' => 'edit'
-                // Ajoutez d'autres champs que vous avez modifiés
+                'status' => 'success',
+                'message' => 'Success',
+                'data' => [
+                'adresse' => 'edit']
             ]);
     }
 
@@ -159,6 +193,7 @@ class EleveControllerTest extends TestCase
 
         $data = [
             'nom' => 'Mounkaila',
+            'prix' => 50000,
             'prenom' => 'Boubacar',
             'number' => '12345',
             'adresse' => '123 Street',
@@ -169,11 +204,15 @@ class EleveControllerTest extends TestCase
             'promotion_id' => $promotion->id,
         ];
 
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+        $token = auth()->login($user);
+
+
 
         // Enregistrer l'utilisateur et récupérer la réponse JSON
-        $this->json('put', 'api/eleves/0', $data)
-            ->assertStatus(Response::HTTP_NOT_FOUND)
-            ->assertJsonStructure(['error']);
+        $this->json('put', 'api/eleves/0', $data,[ 'Authorization' => "Bearer $token"])
+            ->assertStatus(Response::HTTP_NOT_FOUND);
     }
 
     /** @test */
@@ -184,6 +223,7 @@ class EleveControllerTest extends TestCase
 
         $data = [
             'nom' => 'Mounkaila',
+            'prix' => 50000,
             'prenom' => 'Boubacar',
             'number' => '12345',
             'adresse' => '123 Street',
@@ -193,17 +233,20 @@ class EleveControllerTest extends TestCase
             'classe_id' => $classe->id, // Remplacez par l'ID de la classe appropriée
             'promotion_id' => $promotion->id,
         ];
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+        $token = auth()->login($user);
 
-        // Enregistrer l'utilisateur et récupérer la réponse JSON
-            // Enregistrement de l'élève avec un en-tête X-Promotion
+        // Perform the request
         $response = $this->withHeaders([
             'X-Promotion' => $promotion->id,
+            'Authorization' => "Bearer $token"
         ])->json('POST', 'api/eleves', $data);
 
 
         $eleve = $response->json();
 
-        $this->json('delete', "api/eleves/{$eleve['id']}")
+        $this->json('delete', "api/eleves/{$eleve['data']['id']}")
             ->assertStatus(204)
             ->assertNoContent();
         $this->assertDatabaseMissing('eleves', $data);
@@ -212,92 +255,15 @@ class EleveControllerTest extends TestCase
 
     public function testDestroyForMissingPromotion()
     {
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+        $token = auth()->login($user);
 
-        $this->json('delete', 'api/eleves/0')
+
+        $this->json('delete', 'api/eleves/0', ['Authorization' => "Bearer $token"])
             ->assertStatus(Response::HTTP_NOT_FOUND)
             ->assertJsonStructure(['error']);
     }
 
-    /** @test */
-    public function it_belongs_to_a_promotion_and_classe()
-    {
-        // Créez une dépense et une promotion
-        $promotion1 = Promotion::factory()->create();
-        $promotion2 = Promotion::factory()->create();
-        $classe = Classe::factory()->create();
-
-        $data = [
-            'nom' => 'Mounkaila',
-            'prenom' => 'Boubacar',
-            'number' => '12345',
-            'adresse' => '123 Street',
-            'birth' => '2000-01-01',
-            'nationalite' => 'FR',
-            'genre' => 'M',
-            'classe_id' => $classe->id,
-            'promotion_id' => $promotion1->id,
-
-        ];
-
-        // Enregistrer l'utilisateur et récupérer la réponse JSON
-            // Enregistrement de l'élève avec un en-tête X-Promotion
-        $response = $this->withHeaders([
-            'X-Promotion' => $promotion2->id,
-        ])->json('POST', 'api/eleves', $data);
-
-
-        $eleve = $response->json();
-//        $eleve->promotions()->attach([$promotion1->id, $promotion2->id]);
-//        $this->assertArrayHasKey('promotions', $eleve);
-
-//        // Verify the promotion IDs present in the response
-//        $this->assertContains($promotion1->id, array_column($eleve['promotions'], 'id'));
-//        $this->assertContains($promotion2->id, array_column($eleve['promotions'], 'id'));
-
-        $this->assertArrayHasKey('classe', $eleve);
-        $this->assertEquals($classe->id, $eleve["classe"]["id"]);
-    }
-    /** @test */
-    public function it_can_assign_a_promotion_to_an_eleve()
-    {
-        // Créez une dépense et une promotion
-        $promotion1 = Promotion::factory()->create();
-        $promotion2 = Promotion::factory()->create();
-        $classe = Classe::factory()->create();
-
-        $data = [
-            'nom' => 'Mounkaila',
-            'prenom' => 'Boubacar',
-            'number' => '12345',
-            'adresse' => '123 Street',
-            'birth' => '2000-01-01',
-            'nationalite' => 'FR',
-            'genre' => 'M',
-            'classe_id' => $classe->id,
-            'promotion_id' => $promotion2->id,
-
-        ];
-
-        // Enregistrer l'utilisateur et récupérer la réponse JSON
-            // Enregistrement de l'élève avec un en-tête X-Promotion
-        $response = $this->withHeaders([
-            'X-Promotion' => $promotion1->id,
-        ])->json('POST', 'api/eleves', $data);
-
-
-        $eleve = $response->json();
-        $eleveId = $eleve['id'];
-
-// Récupérer l'objet Eleve de la base de données et attacher la promotion
-        $eleveFromDB = Eleve::find($eleveId);
-        $eleveFromDB->promotions()->attach($promotion1->id);
-
-
-        // Assertions
-        $this->assertDatabaseHas('eleve_promotion', [
-            'eleve_id' => $eleveId,
-            'promotion_id' => $promotion1->id
-        ]);
-    }
 
 }

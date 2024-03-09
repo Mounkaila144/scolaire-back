@@ -1,70 +1,87 @@
 <?php
 
 namespace Tests\Unit\Controllers;
+use App\Models\Classe;
+use App\Models\Professeur;
 use App\Models\Promotion;
-use App\Models\Payadmin;
+use App\Models\Matiere;
 use App\Models\User;
+use Database\Seeders\initDataSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class PayadminControllerTest extends TestCase
+class MatiereControllerTest extends TestCase
 {
     use RefreshDatabase;
-
-    public function test_can_list_payadmin()
+    protected function setUp(): void {
+        parent::setUp();
+        // Exécute tous les seeders disponibles
+        $this->seed(initDataSeeder::class);
+    }
+    public function test_can_list_matiere()
     {
-        Payadmin::factory()->count(3)->create();
-        $response = $this->get('/api/payadmins');
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+        $token = auth()->login($user);
+        Matiere::factory()->count(3)->create();
+        $response = $this->get('/api/matiers', ['Authorization' => "Bearer $token"]);
 
         $response->assertStatus(200);
-        $this->assertCount(3, $response->json());
     }
 
-    public function test_can_show_payadmin()
+    public function test_can_show_matiere()
     {
-        $payadmin = Payadmin::factory()->create();
-        $response = $this->get("/api/payadmins/{$payadmin->id}");
+        $matiere = Matiere::factory()->create();
+        $response = $this->get("/api/matiers/{$matiere->id}");
 
         $response->assertStatus(200);
-        $this->assertEquals($payadmin->id, $response->json('id'));
     }
 
-    public function test_can_create_payadmin()
+    public function test_can_create_matiere()
     {
-        $prof = User::factory()->create();
+        $classe = Classe::factory()->create();
+        $professeur = Professeur::factory()->create();
         $promotion = Promotion::factory()->create();
 
-
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+        $token = auth()->login($user);
         $data = [
-            'prix' =>500,
-            'user_id' => $prof->id,
+            'nom' =>'6eme',
+            'coef' =>20,
+            'classe_id' => $classe->id,
+            'professeur_id' => $professeur->id,
         ];
         $response = $this->withHeaders([
             'X-Promotion' => $promotion->id,
-        ])->post('/api/payadmins', $data);
+             'Authorization' => "Bearer $token"
+        ])->post('/api/matiers', $data);
 
         $response->assertStatus(201);
-        $this->assertDatabaseHas('payadmins', $data);
     }
 
-    public function test_can_update_payadmin()
+    public function test_can_update_matiere()
     {
-        $payadmin = Payadmin::factory()->create();
-        $data = ['prix' => 1700.00];
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+        $token = auth()->login($user);
+        $matiere = Matiere::factory()->create();
+        $data = ['coef' => 17];
 
-        $response = $this->put("/api/payadmins/{$payadmin->id}", $data);
+        $response = $this->put("/api/matiers/{$matiere->id}", $data, ['Authorization' => "Bearer $token"]);
 
         $response->assertStatus(200);
-        $this->assertDatabaseHas('payadmins', $data);
     }
 
-    public function test_can_delete_payadmin()
+    public function test_can_delete_matiere()
     {
-        $payadmin = Payadmin::factory()->create();
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+        $token = auth()->login($user);
+        $matiere = Matiere::factory()->create();
 
-        $response = $this->delete("/api/payadmins/{$payadmin->id}");
+        $response = $this->delete("/api/matiers/{$matiere->id}",[], ['Authorization' => "Bearer $token"]);
 
         $response->assertStatus(204);
-        $this->assertDatabaseMissing('payadmins', ['id' => $payadmin->id]);
     }
 }

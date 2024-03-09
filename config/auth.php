@@ -12,7 +12,12 @@ return [
     | as required, but they're a perfect start for most applications.
     |
     */
-
+    'rolePermissions' => [
+        'superadmin' => ['admin'],
+        'admin' => ['admin'],
+        'prof' => ['prof'],
+        'eleve' => ['eleve'],
+    ],
     'defaults' => [
         'guard' => 'api',
         'passwords' => 'users',

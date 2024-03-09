@@ -29,6 +29,7 @@ class ScolariteFactory extends Factory
             'prix' => $this->faker->randomNumber(5), // Générer un nombre aléatoire pour le prix
             'eleve_id' => Eleve::factory(),
             'promotion_id' => Promotion::factory(),
+            'promotion_id' => Promotion::factory(),
         ];
     }
 }

@@ -1,5 +1,8 @@
 <?php
+
 namespace App\Http\Controllers;
+
+use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -12,47 +15,38 @@ class AuthController extends Controller
 
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login','register']]);
+        $this->middleware('auth:api', ['except' => ['login', 'register']]);
     }
 
 
-    public function updater(Request $request, $id)
-    {
-        dd("hello");
-
-    }
-
-
-
-    public function login(Request $request)
-    {
-        $request->validate([
+    public function login(Request $request) {
+        $credentials = $request->validate([
             'username' => 'required|string',
             'password' => 'required|string',
         ]);
-        $credentials = $request->only('username', 'password');
 
-        $token = Auth::attempt($credentials);
-        if (!$token) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Unauthorized',
-            ], 401);
+        if (!$token = Auth::guard('api')->attempt($credentials)) {
+            return ApiResponse::error('Unauthorized', null, 401);
         }
 
-        $user = Auth::user();
-        $user->load('roles');
-        return response()->json([
-            'status' => 'success',
-            'user' => $user,
-            'token' => $token,
-        ]);
-
+        return $this->createNewToken($token);
+    }
+    protected function createNewToken($token) {
+        return ApiResponse::success([
+            'access_token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => Auth::guard('api')->factory()->getTTL() * 60,
+            'user' => Auth::guard('api')->user(),
+        ], 'Token created successfully');
+    }
+    public function refresh()
+    {
+        return $this->createNewToken(auth()->refresh());
     }
 
     public function register(Request $request)
     {
-        $requiredFields = ['nom', 'prenom', 'role'];
+        $requiredFields = ['nom', 'prenom'];
         foreach ($requiredFields as $field) {
             if (is_null($request->input($field))) {
                 return $this->errorResponse(
@@ -64,7 +58,6 @@ class AuthController extends Controller
         $request->validate([
             'nom' => 'required|string|max:255',
             'prenom' => 'required|string|max:255',
-            'role' => 'required|string|max:255',
 
         ]);
         $username = $this->generateUniqueUsername($request->input('prenom'));
@@ -76,7 +69,6 @@ class AuthController extends Controller
             'username' => $username,
             'role' => $request->input('role'),
             'password' => Hash::make($request->input('password')),
-            'passwordinit' =>$password, // Assurez-vous que le champ "passwordinit" existe dans le modèle
         ]);
 
         return response()->json([
@@ -85,6 +77,7 @@ class AuthController extends Controller
             'user' => $user,
         ], 201);
     }
+
     private function generateNumericPassword($length)
     {
         $password = '';
@@ -95,6 +88,7 @@ class AuthController extends Controller
 
         return $password;
     }
+
     private function generateUniqueUsername($prenom)
     {
         $username = strtolower($prenom);
@@ -108,6 +102,7 @@ class AuthController extends Controller
 
         return $username;
     }
+
     /**
      * Get the authenticated User.
      *
@@ -115,7 +110,9 @@ class AuthController extends Controller
      */
     public function me()
     {
-        return response()->json(auth()->user());
+        return ApiResponse::success([
+        'user' => Auth::guard('api')->user(),
+    ]);
     }
 
     /**
@@ -126,8 +123,7 @@ class AuthController extends Controller
     public function logout()
     {
         auth()->logout();
-
-        return response()->json(['message' => 'Successfully logged out']);
+        return ApiResponse::success([], 'Successfully logged out');
     }
 
     /**
@@ -135,25 +131,15 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function refresh()
-    {
-        return $this->respondWithToken(auth()->refresh());
-    }
+
 
     /**
      * Get the token array structure.
      *
-     * @param  string $token
+     * @param string $token
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    protected function respondWithToken($token)
-    {
-        return response()->json([
-            'access_token' => $token,
-            'token_type' => 'bearer',
-            'expires_in' => auth()->factory()->getTTL() * 60
-        ]);
-    }
+
 
 }

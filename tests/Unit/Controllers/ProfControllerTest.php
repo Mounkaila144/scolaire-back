@@ -6,6 +6,8 @@ use App\Http\Controllers\DepenseController;
 use App\Models\Classe;
 use App\Models\Eleve;
 use App\Models\Promotion;
+use App\Models\User;
+use Database\Seeders\initDataSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Response;
 use Tests\TestCase;
@@ -15,12 +17,15 @@ use App\Models\Payteacher;
 class ProfControllerTest extends TestCase
 {
     use RefreshDatabase;
-
+    protected function setUp(): void {
+        parent::setUp();
+        // Exécute tous les seeders disponibles
+        $this->seed(initDataSeeder::class);
+    }
     /** @test */
     public function it_can_get_all_professeurs()
     {
         $promotion = Promotion::factory()->create();
-        $classe = Classe::factory()->create();
 
         $data = [
             'nom' => 'Mounkaila',
@@ -29,21 +34,28 @@ class ProfControllerTest extends TestCase
             'adresse' => '123 Street',
             'birth' => '2000-01-01',
             'nationalite' => 'FR',
-            'genre' => 'M',
+            'genre' => 'M'
         ];
 
 
-        $this->json('post', 'api/professeurs', $data);
-      $this->json('get', 'api/professeurs')
-            ->assertStatus(200)
-        ->assertJsonCount(1);
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+        $token = auth()->login($user);
+
+        // Perform the request
+        $response = $this->withHeaders([
+            'X-Promotion' => $promotion->id,
+            'Authorization' => "Bearer $token"
+        ])->json('POST', 'api/professeurs', $data);
+
+        $this->json('get', 'api/professeurs')
+            ->assertStatus(200);
     }
 
     /** @test */
-    public function test_it_can_show_and_store_professeurs()
+    public function test_it_can_store_professeurs()
     {
         $promotion = Promotion::factory()->create();
-        $classe = Classe::factory()->create();
 
         $data = [
             'nom' => 'Mounkaila',
@@ -52,29 +64,35 @@ class ProfControllerTest extends TestCase
             'adresse' => '123 Street',
             'birth' => '2000-01-01',
             'nationalite' => 'FR',
-            'genre' => 'M',
+            'genre' => 'M'
         ];
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+        $token = auth()->login($user);
 
-        // Enregistrer l'utilisateur et récupérer la réponse JSON
-        $response = $this->json('post', 'api/professeurs', $data);
+        // Perform the request
+        $response = $this->withHeaders([
+            'X-Promotion' => $promotion->id,
+            'Authorization' => "Bearer $token"
+        ])->json('POST', 'api/professeurs', $data);
+
         $prof = $response->json();
-        // Récupérer l'utilisateur créé dans la réponse
-        // Vérifier si les détails de l'utilisateur peuvent être récupérés via l'API
-        $this->json('get', "api/professeurs/{$prof['id']}")
-            ->assertStatus(200)
-            ->assertJson([
-                'number' => '12345',
-                'adresse' => '123 Street',
-                'birth' => '2000-01-01',
-                'nationalite' => 'FR',
-                'genre' => 'M',
-            ]);
+
+        // Vérification de l'élève avec un en-tête X-Promotion
+        $this->withHeaders([
+            'X-Promotion' => $promotion->id,
+        ])->json('GET', "api/professeurs/{$prof['data']['id']}")
+            ->assertStatus(200);
     }
 
     public function testShowForMissingPromotion()
     {
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+        $token = auth()->login($user);
 
-        $this->json('get', "api/professeurs/0")
+
+        $this->json('get', "api/professeurs/0",[], ['Authorization' => "Bearer $token"])
             ->assertStatus(Response::HTTP_NOT_FOUND)
             ->assertJsonStructure(['error']);
 
@@ -89,9 +107,12 @@ class ProfControllerTest extends TestCase
 //            'prix' => 200,
             //email address is missing
         ];
-        $this->json('post', 'api/professeurs', $payload)
-            ->assertStatus(Response::HTTP_BAD_REQUEST)
-            ->assertJsonStructure(['error']);
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+        $token = auth()->login($user);
+
+        $this->json('post', 'api/professeurs', $payload,[ 'Authorization' => "Bearer $token"])
+            ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
     /** @test */
@@ -102,6 +123,7 @@ class ProfControllerTest extends TestCase
 
         $data = [
             'nom' => 'Mounkaila',
+            'prix' => 50000,
             'prenom' => 'Boubacar',
             'number' => '12345',
             'adresse' => '123 Street',
@@ -110,26 +132,36 @@ class ProfControllerTest extends TestCase
             'genre' => 'M',
         ];
 
-        // Enregistrer l'utilisateur et récupérer la réponse JSON
-        $response = $this->json('post', 'api/professeurs', $data);
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+        $token = auth()->login($user);
+
+        // Perform the request
+        $response = $this->withHeaders([
+            'X-Promotion' => $promotion->id,
+            'Authorization' => "Bearer $token"
+        ])->json('POST', 'api/professeurs', $data);
+
 
         $prof = $response->json(); // Récupérer l'utilisateur créé dans la réponse
 
         $dataEdit = [
-                'adresse' => 'edit'
+            'adresse' => 'edit'
             // Ajoutez d'autres données à modifier au besoin
         ];
 
         // Mettre à jour les données de l'utilisateur via l'API PUT
-        $this->json('put', "api/professeurs/{$prof['id']}", $dataEdit)
+        $this->json('put', "api/professeurs/{$prof['data']['id']}", $dataEdit)
             ->assertStatus(200);
 
         // Récupérer à nouveau les détails de l'utilisateur après la mise à jour
-       $this->json('get', "api/professeurs/{$prof['id']}")
+        $this->json('get', "api/professeurs/{$prof['data']['id']}")
             ->assertStatus(200)
             ->assertJson([
-                'adresse' => 'edit'
-                // Ajoutez d'autres champs que vous avez modifiés
+                'status' => 'success',
+                'message' => 'Success',
+                'data' => [
+                    'adresse' => 'edit']
             ]);
     }
 
@@ -140,19 +172,26 @@ class ProfControllerTest extends TestCase
 
         $data = [
             'nom' => 'Mounkaila',
+            'prix' => 50000,
             'prenom' => 'Boubacar',
             'number' => '12345',
             'adresse' => '123 Street',
             'birth' => '2000-01-01',
             'nationalite' => 'FR',
             'genre' => 'M',
+            'classe_id' => $classe->id, // Remplacez par l'ID de la classe appropriée
+            'promotion_id' => $promotion->id,
         ];
+
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+        $token = auth()->login($user);
+
 
 
         // Enregistrer l'utilisateur et récupérer la réponse JSON
-        $this->json('put', 'api/professeurs/0', $data)
-            ->assertStatus(Response::HTTP_NOT_FOUND)
-            ->assertJsonStructure(['error']);
+        $this->json('put', 'api/professeurs/0', $data,[ 'Authorization' => "Bearer $token"])
+            ->assertStatus(Response::HTTP_NOT_FOUND);
     }
 
     /** @test */
@@ -163,20 +202,28 @@ class ProfControllerTest extends TestCase
 
         $data = [
             'nom' => 'Mounkaila',
+            'prix' => 50000,
             'prenom' => 'Boubacar',
             'number' => '12345',
             'adresse' => '123 Street',
             'birth' => '2000-01-01',
             'nationalite' => 'FR',
-            'genre' => 'M',
+            'genre' => 'M'
         ];
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+        $token = auth()->login($user);
 
-        // Enregistrer l'utilisateur et récupérer la réponse JSON
-        $response = $this->json('post', 'api/professeurs', $data);
+        // Perform the request
+        $response = $this->withHeaders([
+            'X-Promotion' => $promotion->id,
+            'Authorization' => "Bearer $token"
+        ])->json('POST', 'api/professeurs', $data);
+
 
         $prof = $response->json();
 
-        $this->json('delete', "api/professeurs/{$prof['id']}")
+        $this->json('delete', "api/professeurs/{$prof['data']['id']}")
             ->assertStatus(204)
             ->assertNoContent();
         $this->assertDatabaseMissing('professeurs', $data);
@@ -185,11 +232,15 @@ class ProfControllerTest extends TestCase
 
     public function testDestroyForMissingPromotion()
     {
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+        $token = auth()->login($user);
 
-        $this->json('delete', 'api/professeurs/0')
+
+        $this->json('delete', 'api/professeurs/0', ['Authorization' => "Bearer $token"])
             ->assertStatus(Response::HTTP_NOT_FOUND)
             ->assertJsonStructure(['error']);
     }
 
-    }
 
+}

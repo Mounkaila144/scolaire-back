@@ -18,6 +18,7 @@ public function professeur()
         return $this->belongsTo(Professeur::class);
     }
 
+
     protected $fillable = [
         'prix',
         'professeur_id',

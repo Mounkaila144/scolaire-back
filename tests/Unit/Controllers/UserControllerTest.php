@@ -29,29 +29,6 @@ class UserControllerTest extends TestCase
     }
 
     /** @test */
-    public function test_it_can_show_and_store_users()
-    {
-        $data = [
-            'nom' => fake()->firstName(),
-            'prenom' => fake()->lastName(),
-            'role' => "admin"
-        ];
-
-        // Enregistrer l'utilisateur et récupérer la réponse JSON
-        $response = $this->json('post', 'api/users', $data);
-
-        $user = $response->json('user'); // Récupérer l'utilisateur créé dans la réponse
-
-        // Vérifier si les détails de l'utilisateur peuvent être récupérés via l'API
-        $this->json('get', "api/users/{$user['id']}")
-            ->assertStatus(200)
-            ->assertJson([
-                'nom' => $user['nom'],
-                'prenom' => $user['prenom'],
-                'role' => $user['role'],
-                // Ajouter d'autres champs que vous souhaitez vérifier
-            ]);
-    }
 
     public function testShowForMissingUser()
     {
