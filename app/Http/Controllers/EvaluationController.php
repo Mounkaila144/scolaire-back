@@ -57,6 +57,8 @@ class EvaluationController extends Controller
 
     public function store(Request $request)
     {
+        $promotionId = $request->header('X-Promotion');
+
         $request->validate([
             'note' => 'required',
             'sur' => 'required',
@@ -73,7 +75,8 @@ class EvaluationController extends Controller
             'matiere_id' => $request->matiere_id,
             'eleve_id' => $request->eleve_id
         ];
-
+        $data = $request->all();
+        $data["promotion_id"]=$promotionId;
         $evaluation = Evaluation::create($data);
 
         return ApiResponse::created($evaluation);

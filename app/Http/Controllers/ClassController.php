@@ -25,6 +25,8 @@ class ClassController extends Controller
 
     public function store(Request $request)
     {
+        $promotionId = $request->header('X-Promotion');
+
         $champsRequis = ['nom', 'prix']; // Champs requis
         $champsManquants = [];
 
@@ -40,8 +42,9 @@ class ClassController extends Controller
 
             return ApiResponse::error($messageErreur, [], Response::HTTP_BAD_REQUEST);
         }
-
-        $classe = Classe::create($request->all());
+        $data = $request->all();
+        $data["promotion_id"]=$promotionId;
+        $classe = Classe::create($data);
         return ApiResponse::created($classe, 'Classe créée avec succès');
     }
 

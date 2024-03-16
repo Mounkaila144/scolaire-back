@@ -42,6 +42,8 @@ class CourControllerTest extends TestCase
 
     public function test_can_create_cour()
     {
+        $promotion = Promotion::factory()->create();
+
         $schedule = Schedule::factory()->create();
         $professeur = Professeur::factory()->create();
         $promotion = Promotion::factory()->create();
