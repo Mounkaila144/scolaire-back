@@ -17,15 +17,23 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('nom');
+            $table->string('nom'); // Ajoutez ->nullable() ici
             $table->string('prenom');
-            $table->string('username')->unique()->nullable(false);
+            $table->string('username')->unique();
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
         });
-        User::create(['nom' => 'Abdourahmane','prenom' => 'Abdourahmane','username' => 'admin','password' => Hash::make('admin123'),'avatar' => 'avatar-1.jpg','created_at' => now(),]);
+
+        User::create([
+            'nom' => 'Abdourahmane',
+            'prenom' => 'Abdourahmane',
+            'username' => 'admin@gmail.com',
+            'password' => Hash::make('admin123'),
+            'created_at' => now(),
+        ]);
     }
+
 
     /**
      * Reverse the migrations.
