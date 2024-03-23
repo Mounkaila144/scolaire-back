@@ -81,7 +81,7 @@ File: Chat init js
                 var isUserProfile = userData.profile ? '<img src="' + userData.profile + '" class="rounded-circle img-fluid userprofile" alt=""><span class="user-status"></span>'
                     : '<div class="avatar-title rounded-circle bg-primary text-white fs-10">' + userData.nickname + '</div><span class="user-status"></span>';
 
-                var isMessageCount = userData.messagecount ? '<div class="ms-auto"><span class="badge bg-dark-subtle text-body rounded p-1">' +
+                var isMessageCount = userData.messagecount ? '<div class="ms-auto"><span class="badge bg-dark-subtle text-promoion rounded p-1">' +
                     userData.messagecount +
                     "</span></div>"
                     : "";
@@ -110,11 +110,11 @@ File: Chat init js
             var channelsData = data[0].channels;
             channelsData.forEach(function (isChannel, index) {
                 var isMessage = isChannel.messagecount
-                    ? '<div class="flex-shrink-0 ms-2"><span class="badge bg-dark-subtle text-body rounded p-1">' +
+                    ? '<div class="flex-shrink-0 ms-2"><span class="badge bg-dark-subtle text-promoion rounded p-1">' +
                     isChannel.messagecount +
                     "</span></div>"
                     : "";
-                var isMessageCount = isChannel.messagecount ? '<div class="ms-auto"><span class="badge bg-dark-subtle text-body rounded p-1">' +
+                var isMessageCount = isChannel.messagecount ? '<div class="ms-auto"><span class="badge bg-dark-subtle text-promoion rounded p-1">' +
                     isChannel.messagecount +
                     "</span></div>"
                     : "";
@@ -125,7 +125,7 @@ File: Chat init js
                 <div class="d-flex align-items-center">\
                     <div class="flex-shrink-0 chat-user-img align-self-center me-2 ms-0">\
                         <div class="avatar-xxs">\
-                            <div class="avatar-title bg-light rounded-circle text-body">#</div>\
+                            <div class="avatar-title bg-light rounded-circle text-promoion">#</div>\
                         </div>\
                     </div>\
                     <div class="flex-grow-1 overflow-hidden">\
@@ -230,7 +230,7 @@ File: Chat init js
                     isreplyMessage = false;
                     document.querySelector(".replyCard").classList.remove("show");
                 }
-                
+
                 if (item.querySelector(".align-items-center").querySelector(".avatar-xxs img")) {
                     var contactImg = item.querySelector(".align-items-center").querySelector(".avatar-xxs .rounded-circle").getAttribute("src");
                     document.querySelector(".user-own-img .avatar-xs").setAttribute("src", contactImg);
@@ -636,7 +636,7 @@ File: Chat init js
         });
     }
 
-    //Delete Message 
+    //Delete Message
     function deleteMessage() {
         var deleteItems = itemList.querySelectorAll(".delete-item");
         deleteItems.forEach(function (item) {
@@ -648,7 +648,7 @@ File: Chat init js
         });
     }
 
-    //Delete Image 
+    //Delete Image
     function deleteImage() {
         var deleteImage = itemList.querySelectorAll(".chat-conversation-list .chat-list");
         deleteImage.forEach(function (item) {
@@ -798,7 +798,7 @@ File: Chat init js
             });
         });
 
-        //reply Message model    
+        //reply Message model
         newChatList.querySelectorAll(".reply-message").forEach(function (subitem) {
             subitem.addEventListener("click", function () {
                 var replyToggleOpenNew = document.querySelector(".replyCard");

@@ -112,7 +112,7 @@ function loadJobListData(datas, page) {
         }
         if (datas[i]) {
         document.querySelector("#job-list").innerHTML += '<div class="card joblist-card">\
-            <div class="card-body">\
+            <div class="card-promoion">\
                 <div class="d-flex mb-4">\
                     <div class="avatar-sm">\
                         <div class="avatar-title bg-light rounded">\
@@ -148,7 +148,7 @@ function loadJobListData(datas, page) {
         }
         // });
     }
-    
+
     document.getElementById("total-result").innerHTML = datas.length
     selectedPage();
     currentPage == 1 ? prevButton.parentNode.classList.add('disabled') : prevButton.parentNode.classList.remove('disabled');
@@ -260,7 +260,7 @@ document.querySelector("#cover-image-input").addEventListener("change", function
                     event.stopPropagation();
                 } else {
                     event.preventDefault();
-                    
+
                     var jobTitleVal = document.getElementById("jobtitle-field").value;
                     var companyNameVal = document.getElementById("companyname-field").value;
                     var companyLogoImg = document.getElementById("companylogo-img").src;
@@ -325,7 +325,7 @@ function sortElementsById() {
         }
         return 0;
     })
-    
+
     loadJobListData(manyJobList, currentPage);
 }
 
@@ -342,7 +342,7 @@ function jobDetailShow() {
             var jobLocationVal = item.querySelector(".job-location").innerHTML;
             var jobPostdateVal = item.querySelector(".job-postdate").innerHTML;
             var jobExperienceVal = item.querySelector(".job-experience").innerHTML;
-        
+
             document.querySelector("#cover-img").src = coverImgVal;
             document.querySelector("#job-overview .view-companylogo").src = companyLogoImgVal;
             document.querySelector("#job-overview .view-title").innerHTML = jobTitleVal;
@@ -360,7 +360,7 @@ function jobDetailShow() {
 var searchElementList = document.getElementById("searchJob");
 searchElementList.addEventListener("keyup", function () {
     var inputVal = searchElementList.value.toLowerCase();
-    
+
     function filterItems(arr, query) {
         return arr.filter(function (el) {
             return el.jobTitle.toLowerCase().indexOf(query.toLowerCase()) !== -1 || el.companyName.toLowerCase().indexOf(query.toLowerCase()) !== -1

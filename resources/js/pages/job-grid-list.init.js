@@ -53,7 +53,7 @@ function loadJobListData(datas, page) {
         itemsPerPage = 7;
         document.querySelector("#job-list").insertAdjacentHTML('afterbegin', '<div class="col-lg-3 col-md-6" id="job-widget">\
         <div class="card card-height-100 bg-info bg-job">\
-            <div class="card-body p-5">\
+            <div class="card-promoion p-5">\
                 <h2 class="lh-base text-white">Velzon invites young professionals for an intership!</h2>\
                 <p class="text-white text-opacity-75 mb-0 fs-14">Don\'t miss your opportunity to improve your skills!</p>\
                 <div class="mt-5 pt-2">\
@@ -92,7 +92,7 @@ function loadJobListData(datas, page) {
         if (datas[i]) {
             document.querySelector("#job-list").innerHTML += '<div class="col-lg-3 col-md-6">\
         <div class="card">\
-            <div class="card-body">\
+            <div class="card-promoion">\
                 <button type="button" class="btn btn-icon btn-soft-primary float-end" data-bs-toggle="button" aria-pressed="true"><i class="mdi mdi-cards-heart fs-16"></i></button>\
                 <div class="avatar-sm mb-4">\
                     <div class="avatar-title bg-light rounded">\
@@ -198,7 +198,7 @@ function paginationEvents() {
 var searchElementList = document.getElementById("searchJob");
 searchElementList.addEventListener("keyup", function () {
     var inputVal = searchElementList.value.toLowerCase();
-    
+
     function filterItems(arr, query) {
         return arr.filter(function (el) {
             return el.jobTitle.toLowerCase().indexOf(query.toLowerCase()) !== -1
@@ -259,7 +259,7 @@ function filterData() {
         } else {
             dateFilter = false;
         }
-        
+
         if (statusFilter && typeFilter && dateFilter) {
             return statusFilter && typeFilter && dateFilter;
         } else if (statusFilter && typeFilter && pickerVal == "") {

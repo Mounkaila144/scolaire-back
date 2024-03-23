@@ -55,7 +55,7 @@ function loadCandidateListData(datas, page) {
                 : '<div class="avatar-title border bg-light text-primary rounded text-uppercase fs-24">' + datas[i].nickname + '</div>';
             document.querySelector("#candidate-list").innerHTML += '<div class="col-xxl-3 col-md-6">\
     <div class="card">\
-        <div class="card-body">\
+        <div class="card-promoion">\
             <div class="d-flex align-items-center">\
                 <div class="flex-shrink-0">\
                     <div class="avatar-lg rounded">'+ isUserProfile + '</div>\

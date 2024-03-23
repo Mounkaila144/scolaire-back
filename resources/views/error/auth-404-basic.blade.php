@@ -4,7 +4,7 @@
 @lang('translation.Error_404')
 @endsection
 
-@section('body')
+@section('promoion')
 <body>
 @endsection
 @section('content')

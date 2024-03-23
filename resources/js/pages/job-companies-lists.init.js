@@ -54,7 +54,7 @@ function loadCompaniesListData(datas, page) {
         if (datas[i]) {
             document.querySelector("#companies-list").innerHTML += '<div class="col-xxl-3 col-md-6">\
     <div class="card companiesList-card">\
-        <div class="card-body">\
+        <div class="card-promoion">\
             <div class="avatar-sm mx-auto">\
                 <div class="avatar-title bg-light rounded">\
                     <img src="'+ datas[i].companyLogo + '" alt="" class="avatar-xxs companyLogo-img">\
@@ -222,7 +222,7 @@ function filterData() {
 
     var filterData = allCompaniesList.filter(function (data) {
         console.log(new Date(data.postDate) <= new Date(pickerVal))
-        
+
         var dateFilter = false;
         var typeFilter = false;
 

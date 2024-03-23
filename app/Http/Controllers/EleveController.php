@@ -20,7 +20,9 @@ class EleveController extends Controller
     {
 
         $eleve = Eleve::with(['user', 'classe'])->get();
-        return ApiResponse::success($eleve);
+        //return ApiResponse::success($eleve);
+        //$promotions = Promotion::all();
+        return view('promoion.eleve', ['Eleves'=> $eleve]);
     }
 
     public function filterByClasse($id)

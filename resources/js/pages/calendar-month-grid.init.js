@@ -332,7 +332,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 var endUpdateDay = new Date(ed_date);
                 updateDay = endUpdateDay.setDate(endUpdateDay.getDate() - 1);
             }
-            
+
             var r_date = ed_date == null ? (str_dt(st_date)) : (str_dt(st_date)) + ' to ' + (str_dt(updateDay));
             var er_date = ed_date == null ? (date_r(st_date)) : (date_r(st_date)) + ' to ' + (date_r(updateDay));
 
@@ -695,7 +695,7 @@ function upcomingEvent(a) {
         var e_time_e = (e_time_e) ? " to " + e_time_e : "";
 
         u_event = "<div class='card mb-3'>\
-                        <div class='card-body'>\
+                        <div class='card-promoion'>\
                             <div class='d-flex mb-3'>\
                                 <div class='flex-grow-1'><i class='mdi mdi-checkbox-blank-circle me-2 text-" + category[1] + "'></i><span class='fw-medium'>" + startDate + end_dt + " </span></div>\
                                 <div class='flex-shrink-0'><small class='badge bg-primary-subtle text-primary ms-auto'>" + e_time_s + e_time_e + "</small></div>\

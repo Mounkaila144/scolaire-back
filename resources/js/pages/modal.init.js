@@ -19,7 +19,7 @@ if (varyingcontentModal) {
         //
         // Update the modal's content.
         var modalTitle = varyingcontentModal.querySelector('.modal-title')
-        var modalBodyInput = varyingcontentModal.querySelector('.modal-body input')
+        var modalBodyInput = varyingcontentModal.querySelector('.modal-promoion input')
 
         modalTitle.textContent = 'New message to ' + recipient
         modalBodyInput.value = recipient

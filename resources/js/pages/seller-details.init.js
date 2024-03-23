@@ -6,7 +6,7 @@ Contact: Themesbrand@gmail.com
 File: seller-details init js
 */
 
-// table-product-list-all 
+// table-product-list-all
 var TableProductListAll = document.getElementById('table-product-list-all');
 if (TableProductListAll) {
     new gridjs.Grid({
@@ -33,7 +33,7 @@ if (TableProductListAll) {
                         '<div class="avatar-sm bg-light rounded p-1"><img src="build/images/products/' + cell[0] + '" alt="" class="img-fluid d-block"></div>' +
                         '</div>' +
                         '<div class="flex-grow-1">' +
-                        '<h5 class="fs-14 mb-1"><a href="apps-ecommerce-product-details" class="text-body">' + cell[1] + '</a></h5>' +
+                        '<h5 class="fs-14 mb-1"><a href="apps-ecommerce-product-details" class="text-promoion">' + cell[1] + '</a></h5>' +
                         '<p class="text-muted mb-0">Category : <span class="fw-medium">' + cell[2] + '</span></p>' +
                         '</div>' +
                         '</div>');
@@ -56,7 +56,7 @@ if (TableProductListAll) {
                 name: 'Rating',
                 width: '105px',
                 formatter: (function (cell) {
-                    return gridjs.html('<span class="badge bg-light text-body fs-12 fw-medium"><i class="mdi mdi-star text-warning me-1"></i>' + cell + '</span></td>');
+                    return gridjs.html('<span class="badge bg-light text-promoion fs-12 fw-medium"><i class="mdi mdi-star text-warning me-1"></i>' + cell + '</span></td>');
                 })
             },
             {

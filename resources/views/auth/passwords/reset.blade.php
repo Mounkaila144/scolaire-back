@@ -87,7 +87,7 @@
                                     </form><!-- end form -->
                                 </div>
                             </div>
-                            <!-- end card body -->
+                            <!-- end card promoion -->
                         </div>
                         <!-- end card -->
 

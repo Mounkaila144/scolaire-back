@@ -8,7 +8,7 @@ File: Ecommerce product list Js File
 
 
 
-// table-product-list-all 
+// table-product-list-all
 var productListAllData = [
 	{
 		"id": 1,
@@ -251,7 +251,7 @@ var productListAll = new gridjs.Grid({
 						'<div class="avatar-sm bg-light rounded p-1"><img src="' + row.product.img + '" alt="" class="img-fluid d-block"></div>' +
 						'</div>' +
 						'<div class="flex-grow-1">' +
-						'<h5 class="fs-14 mb-1"><a href="apps-ecommerce-product-details" class="text-body">' + row.product.title + '</a></h5>' +
+						'<h5 class="fs-14 mb-1"><a href="apps-ecommerce-product-details" class="text-promoion">' + row.product.title + '</a></h5>' +
 						'<p class="text-muted mb-0">Category : <span class="fw-medium">' + row.product.category + '</span></p>' +
 						'</div>' +
 						'</div>');
@@ -276,7 +276,7 @@ var productListAll = new gridjs.Grid({
 				name: 'Rating',
 				width: '105px',
 				formatter: (function (cell) {
-					return gridjs.html('<span class="badge bg-light text-body fs-12 fw-medium"><i class="mdi mdi-star text-warning me-1"></i>' + cell + '</span></td>');
+					return gridjs.html('<span class="badge bg-light text-promoion fs-12 fw-medium"><i class="mdi mdi-star text-warning me-1"></i>' + cell + '</span></td>');
 				})
 			},
 			{
@@ -423,7 +423,7 @@ var productListPublished = new gridjs.Grid({
 						'<div class="avatar-sm bg-light rounded p-1"><img src="' + row.product.img + '" alt="" class="img-fluid d-block"></div>' +
 						'</div>' +
 						'<div class="flex-grow-1">' +
-						'<h5 class="fs-14 mb-1"><a href="apps-ecommerce-product-details" class="text-body">' + row.product.title + '</a></h5>' +
+						'<h5 class="fs-14 mb-1"><a href="apps-ecommerce-product-details" class="text-promoion">' + row.product.title + '</a></h5>' +
 						'<p class="text-muted mb-0">Category : <span class="fw-medium">' + row.product.category + '</span></p>' +
 						'</div>' +
 						'</div>');
@@ -448,7 +448,7 @@ var productListPublished = new gridjs.Grid({
 				name: 'Rating',
 				width: '105px',
 				formatter: (function (cell) {
-					return gridjs.html('<span class="badge bg-light text-body fs-12 fw-medium"><i class="mdi mdi-star text-warning me-1"></i>' + cell + '</span></td>');
+					return gridjs.html('<span class="badge bg-light text-promoion fs-12 fw-medium"><i class="mdi mdi-star text-warning me-1"></i>' + cell + '</span></td>');
 				})
 			},
 			{
@@ -765,7 +765,7 @@ function removeSingleItem() {
 
 			productListAllData = productListAllData.map(function (item) {
 				if (item.id == getEditid) {
-					
+
 					sessionStorage.setItem('editInputValue', JSON.stringify(item));
 				}
 				return item;
