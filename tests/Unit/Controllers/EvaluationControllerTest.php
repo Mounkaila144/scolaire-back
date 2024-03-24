@@ -77,7 +77,6 @@ class EvaluationControllerTest extends TestCase
 
     public function test_can_create_evalution()
     {
-
         $eleve = Eleve::factory()->create();
         $matiere = Matiere::factory()->create();
         $promotion = Promotion::factory()->create();

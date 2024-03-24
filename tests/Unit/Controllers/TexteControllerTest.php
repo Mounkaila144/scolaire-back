@@ -40,7 +40,6 @@ class TexteControllerTest extends TestCase
 
     public function test_can_create_texte()
     {
-
         $matiere = Texte::factory()->create();
         $promotion = Promotion::factory()->create();
 

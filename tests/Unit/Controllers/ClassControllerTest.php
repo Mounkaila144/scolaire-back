@@ -4,7 +4,6 @@ namespace Tests\Unit\Controllers;
 
 use App\Http\Controllers\DepenseController;
 use App\Models\Classe;
-use App\Models\Promotion;
 use App\Models\User;
 use Database\Seeders\initDataSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -38,12 +37,17 @@ class ClassControllerTest extends TestCase
     /** @test */
     public function it_can_get_all_classes()
     {
-        Classe::factory()->create();
+        $data = [
+            'nom' => 'Mathematics',
+            'prix' => 200,
+            // Add more data as needed
+        ];
         $user = User::factory()->create();
         $user->assignRole('admin');
         $token = auth()->login($user);
+        $this->postJson('/api/classes', $data, ['Authorization' => "Bearer $token"]);
 
-        $response = $this->getJson('/api/classes', ['Authorization' => "Bearer $token"]);
+        $response = $this->getJson('/api/classes');
 
         $response->assertStatus(200);
 
@@ -85,9 +89,6 @@ class ClassControllerTest extends TestCase
     /** @test */
     public function it_can_create_a_class()
     {
-
-        $promotion = Promotion::factory()->create();
-
         $data = [
             'nom' => 'Mathematics',
             'prix' => 200,
@@ -96,9 +97,7 @@ class ClassControllerTest extends TestCase
         $user = User::factory()->create();
         $user->assignRole('admin');
         $token = auth()->login($user);
-        $this->withHeaders([
-            'X-Promotion' => $promotion->id,
-        ])->json('post', 'api/classes', $data, ['Authorization' => "Bearer $token"])
+        $this->json('post', 'api/classes', $data, ['Authorization' => "Bearer $token"])
             ->assertStatus(201)
             ->assertJsonStructure([
                 'status',

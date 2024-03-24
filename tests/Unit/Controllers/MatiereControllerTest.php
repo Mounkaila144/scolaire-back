@@ -39,7 +39,6 @@ class MatiereControllerTest extends TestCase
 
     public function test_can_create_matiere()
     {
-
         $classe = Classe::factory()->create();
         $professeur = Professeur::factory()->create();
         $promotion = Promotion::factory()->create();

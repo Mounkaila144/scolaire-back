@@ -57,8 +57,6 @@ class AbsenceController extends Controller
 
     public function store(Request $request)
     {
-        $promotionId = $request->header('X-Promotion');
-
         $validated = $request->validate([
             'schedule_id' => 'required|exists:schedules,id',
             'matiere_id' => 'required|exists:matieres,id',
@@ -73,7 +71,6 @@ class AbsenceController extends Controller
                 'schedule_id' => $validated['schedule_id'],
                 'matiere_id' => $validated['matiere_id'],
                 'justifiee' => $absenceInfo['justifiee'],
-                'promotion_id' => $promotionId,
                 // Assurez-vous d'inclure ici tous les autres champs requis par votre modèle Absence
             ]);
         }

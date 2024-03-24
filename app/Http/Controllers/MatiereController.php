@@ -20,8 +20,6 @@ class MatiereController extends Controller
 
     public function store(Request $request)
     {
-        $promotionId = $request->header('X-Promotion');
-
         $request->validate([
             'nom' => 'required',
             'coef' => 'required',
@@ -36,8 +34,7 @@ class MatiereController extends Controller
             'classe_id' => $request->classe_id,
             'professeur_id' => $request->professeur_id,
         ];
-        $data = $request->all();
-        $data["promotion_id"]=$promotionId;
+
         $matiere = Matiere::create($data);
 
         return ApiResponse::created($matiere);

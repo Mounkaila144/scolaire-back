@@ -21,8 +21,6 @@ class TexteController extends Controller
 
     public function store(Request $request)
     {
-        $promotionId = $request->header('X-Promotion');
-
         $request->validate([
             'texte' => 'required',
             'matiere_id' => 'required',
@@ -35,8 +33,7 @@ class TexteController extends Controller
             'matiere_id' => $request->matiere_id,
             'professeur_id' => $request->professeur_id
         ];
-        $data = $request->all();
-        $data["promotion_id"]=$promotionId;
+
         $evaluation = Texte::create($data);
 
         return ApiResponse::created($evaluation);
