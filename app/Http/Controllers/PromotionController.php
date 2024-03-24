@@ -23,7 +23,7 @@ class PromotionController extends Controller
     public function store(Request $request)
     {
 
-        $requiredFields = ['debut', 'fin']; // Champs requis raina
+        $requiredFields = ['debut', 'fin']; // Champs requis
         $missingFields = [];
 
         foreach ($requiredFields as $field) {
