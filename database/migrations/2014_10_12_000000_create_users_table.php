@@ -28,7 +28,7 @@ return new class extends Migration
         User::create([
             'nom' => 'Abdourahmane',
             'prenom' => 'Abdourahmane',
-            'username' => 'admin',
+            'username' => 'admin@gmail.com',
             'password' => Hash::make('admin123'),
             'created_at' => now(),
         ]);
