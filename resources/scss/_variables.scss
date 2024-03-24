@@ -456,7 +456,7 @@ $position-values: (
 
 // Body
 //
-// Settings for the `<promoion>` element.
+// Settings for the `<body>` element.
 
 $body-bg:                   #f3f3f9;
 $body-color:                $gray-900;
@@ -624,7 +624,7 @@ $aspect-ratios: (
 
 // Typography
 //
-// Font, line-height, and color for promoion text, headings, and more.
+// Font, line-height, and color for body text, headings, and more.
 
 // scss-docs-start font-variables
 // stylelint-disable value-keyword-case
@@ -635,7 +635,7 @@ $font-family-base:            var(--#{$prefix}font-sans-serif);
 $font-family-code:            var(--#{$prefix}font-monospace);
 
 // $font-size-root affects the value of `rem`, which is used for as well font sizes, paddings, and margins
-// $font-size-base affects the font size of the promoion text
+// $font-size-base affects the font size of the body text
 $font-size-root:              null;
 $font-size-base:              0.8125rem; // Assumes the browser default, typically `16px`
 $font-size-sm:                $font-size-base * .875;

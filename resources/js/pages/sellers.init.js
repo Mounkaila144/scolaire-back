@@ -532,7 +532,7 @@ function loadSellerList(datas, page) {
             var trendingBadge = datas[i].trending ? '<div class="ribbon ribbon-info ribbon-shape trending-ribbon"><i class="ri-flashlight-fill text-white align-bottom"></i> <span class="trending-ribbon-text">Trending</span></div>' : "";
             document.getElementById("seller-list").innerHTML += '<div class="col-xl-3 col-lg-6">\
         <div class="card ribbon-box right overflow-hidden">\
-            <div class="card-promoion text-center p-4">\
+            <div class="card-body text-center p-4">\
                 '+trendingBadge+'\
                 <img src="'+ datas[i].shop[0].img + '" alt="' + datas[i].shop[0].img_alt + '" height="45">\
                 <h5 class="mb-1 mt-4"><a href="apps-ecommerce-seller-details" class="link-primary">'+ datas[i].shop[0].name + '</a></h5>\

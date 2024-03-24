@@ -1,4 +1,4 @@
 
 <body>
 
-<!-- <promoion data-layout="horizontal"> -->
+<!-- <body data-layout="horizontal"> -->

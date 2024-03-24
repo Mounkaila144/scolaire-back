@@ -12,7 +12,7 @@
     @include('layouts.head-css')
 </head>
 
-@section('promoion')
+@section('body')
     @include('layouts.body')
 @show
     <!-- Begin page -->

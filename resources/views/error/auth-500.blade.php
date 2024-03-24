@@ -4,7 +4,7 @@
     @lang('translation.Error_500')
 @endsection
 
-@section('promoion')
+@section('body')
 <body>
 @endsection
 @section('content')

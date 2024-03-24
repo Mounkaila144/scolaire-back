@@ -20,8 +20,6 @@ use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\ScolaireController;
 use App\Http\Controllers\TexteController;
 use App\Http\Controllers\UserController;
-use App\Models\Promotion;
-
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -74,11 +72,3 @@ Route::post('/update-profile/{id}', [App\Http\Controllers\HomeController::class,
 Route::post('/update-password/{id}', [App\Http\Controllers\HomeController::class, 'updatePassword'])->name('updatePassword');
 
 Route::get('{any}', [App\Http\Controllers\HomeController::class, 'index'])->name('index');
-
-
-Route::get('/promotion', function () {
-    return view('promoion.promotion');
-});
-Route::post('store',[PromotionController::class,'store'])->name('store');
-Route::get('destroy/{id}',[PromotionController::class,'destroy'])->name('destroy');
-Route::get('update/{id}',[PromotionController::class,'update'])->name('update');

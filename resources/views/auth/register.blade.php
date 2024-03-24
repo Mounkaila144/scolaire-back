@@ -153,7 +153,7 @@
 
                                 </div>
                             </div>
-                            <!-- end card promoion -->
+                            <!-- end card body -->
                         </div>
                         <!-- end card -->
 

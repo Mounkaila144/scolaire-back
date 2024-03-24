@@ -17,7 +17,7 @@ class PromotionController extends Controller
     public function index()
     {
         $promotions = Promotion::all();
-        return view('promoion.promotion', ['Promotions'=> $promotions]);
+        return ApiResponse::success($promotions, 'Liste des promotions récupérée avec succès');
     }
 
     public function store(Request $request)
@@ -69,14 +69,4 @@ class PromotionController extends Controller
         $promotion->delete();
         return ApiResponse::noContent('Promotion supprimée avec succès');
     }
-
-    /*function promotion()
-    {
-        $Promotion = Promotion::all();
-        $promotions = Promotion::where('idUtilisateur',Auth()->user()->id)->get();
-        return view('promoion.promotion',compact('promotions'));
-    }*/
-
-
 }
-

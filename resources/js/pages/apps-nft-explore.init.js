@@ -58,7 +58,7 @@ function loadProductData(datas) {
                 <div class="bookmark-icon position-absolute top-0 end-0 p-2">\
                     <button type="button" class="btn btn-icon '+ likeBtn + '" data-bs-toggle="button" aria-pressed="true"><i class="mdi mdi-cards-heart fs-16"></i></button>\
                 </div>\
-                <div class="card-promoion">\
+                <div class="card-body">\
                     <p class="fw-medium mb-0 float-end"><i class="mdi mdi-heart text-danger align-middle"></i> '+ prodctData.totalLikes + ' </p>\
                     <h5 class="mb-1"><a href="apps-nft-item-details">'+ prodctData.title + '</a></h5>\
                     <p class="text-muted mb-0">'+ prodctData.category + '</p>\
