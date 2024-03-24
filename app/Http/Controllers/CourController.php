@@ -21,6 +21,8 @@ class CourController extends Controller
 
     public function store(Request $request)
     {
+        $promotionId = $request->header('X-Promotion');
+
         $request->validate([
             'schedule_id' => 'required',
             'professeur_id' => 'required',
@@ -31,7 +33,8 @@ class CourController extends Controller
             'schedule_id' => $request->schedule_id,
             'professeur_id' => $request->professeur_id
         ];
-
+        $data = $request->all();
+        $data["promotion_id"]=$promotionId;
         $evaluation = Cour::create($data);
 
         return ApiResponse::created($evaluation);

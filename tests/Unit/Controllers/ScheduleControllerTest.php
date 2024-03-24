@@ -40,6 +40,8 @@ class ScheduleControllerTest extends TestCase
 
     public function test_can_create_schedule()
     {
+        $promotion = Promotion::factory()->create();
+
         // Création des entités nécessaires
         $classe = Classe::factory()->create();
         $matiere = Matiere::factory()->create();
@@ -61,6 +63,7 @@ class ScheduleControllerTest extends TestCase
 
         // Envoi de la requête POST pour créer un emploi du temps
         $response = $this->withHeaders([
+            'X-Promotion' => $promotion->id,
             'Authorization' => "Bearer $token",
         ])->postJson('/api/schedules', $data);
 

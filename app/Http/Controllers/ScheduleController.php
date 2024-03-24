@@ -26,6 +26,8 @@ class ScheduleController extends Controller
     // Crée un nouvel emploi du temps
     public function store(Request $request)
     {
+        $promotionId = $request->header('X-Promotion');
+
         $validator = Validator::make($request->all(), [
             'classe_id' => 'required|exists:classes,id',
             'matiere_id' => 'required|exists:matieres,id',
@@ -37,8 +39,9 @@ class ScheduleController extends Controller
         if ($validator->fails()) {
             return  ApiResponse::validationError($validator->errors(), 422);
         }
-
-        $emploiDuTemps = Schedule::create($validator->validated());
+        $data = $request->all();
+        $data["promotion_id"]=$promotionId;
+        $emploiDuTemps = Schedule::create($data);
 
         return  ApiResponse::created($emploiDuTemps, 201);
     }

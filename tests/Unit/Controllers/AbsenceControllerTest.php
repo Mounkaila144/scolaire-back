@@ -79,6 +79,8 @@ class AbsenceControllerTest extends TestCase
     /** @test */
     public function test_can_create_absence_with_specific_justifications()
     {
+        $promotion = Promotion::factory()->create();
+
         $user = User::factory()->create();
         $user->assignRole('prof');
         $token = auth()->login($user);
@@ -96,9 +98,9 @@ class AbsenceControllerTest extends TestCase
                 ['id' => $eleve2->id, 'justifiee' => false],
             ],
         ];
-
-        // Envoi de la requête POST pour créer les absences
-        $response = $this->postJson('/api/absences', $absencesData, ['Authorization' => "Bearer $token"]);
+        $response = $this->withHeaders([
+            'X-Promotion' => $promotion->id,
+        ])->json('post','/api/absences', $absencesData, ['Authorization' => "Bearer $token"]);
 
         // Vérification que la requête a réussi
         $response->assertStatus(201); // ou $response->assertOk() si votre API ne retourne pas 201 pour une création
