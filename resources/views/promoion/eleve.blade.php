@@ -257,7 +257,7 @@
                 this.querySelector('#edit-eleve-classe_id').value = classe_id;
 
 
-                // Si vous avez un champ caché pour l'ID, mettez-le à jour également raina
+                // Si vous avez un champ caché pour l'ID, mettez-le à jour également
                 this.querySelector('form input[name="id"]').value = eleveId;
             });
         });
