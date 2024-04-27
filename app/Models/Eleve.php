@@ -37,7 +37,6 @@ class Eleve extends Model
         'nationalite',
         'genre',
         'classe_id',
-        'passwordinit',
         'user_id'
     ];
 }

@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Helpers\ApiResponse;
 use App\Models\Professeur;
 use App\Models\Payadmin;
 use Illuminate\Http\Request;
@@ -8,10 +9,14 @@ use Illuminate\Http\Response;
 
 class PayadminController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:admin');
+    }
     public function index()
     {
         $payadmin = Payadmin::with(["user"])->get();
-        return response()->json($payadmin);
+        return ApiResponse::success($payadmin);
     }
 
     public function store(Request $request)
@@ -32,14 +37,14 @@ class PayadminController extends Controller
 
         $paytecher = Payadmin::create($data);
 
-        return response()->json($paytecher, 201);
+        return ApiResponse::created($paytecher);
     }
     public function show($id)
     {
 
         $Payadmin= Payadmin::findOrFail($id);
 
-        Return response()->json($Payadmin);
+        Return ApiResponse::success($Payadmin);
     }
     /**
      * Show the form for editing the specified resource.
@@ -56,13 +61,13 @@ class PayadminController extends Controller
 
         $payadmin->update($data);
 
-        return response()->json($payadmin, 200);
+        return ApiResponse::success($payadmin, 200);
     }
 
     public function destroy($id)
     {
         $payadmin = Payadmin::findOrFail($id);
         $payadmin->delete();
-        return response()->json(null, 204);
+        return ApiResponse::noContent();
     }
 }

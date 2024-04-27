@@ -32,7 +32,6 @@ class initDataSeeder extends Seeder {
         ]);
 
         $user = User::where('username', 'mounkaila144')->first();
-
         if (!$user) {
             $user = User::create([
                 'nom' => 'Boubacar',

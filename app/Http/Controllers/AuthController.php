@@ -32,11 +32,20 @@ class AuthController extends Controller
         return $this->createNewToken($token);
     }
     protected function createNewToken($token) {
+        $user = Auth::guard('api')->user();
+
+        // Récupération des noms des rôles de l'utilisateur sous forme d'array
+        $roles = $user->getRoleNames()->toArray()[0];
+
+        // Ajout des rôles à l'array de données de l'utilisateur
+        $userData = $user->toArray();
+        $userData['role'] = $roles;
+
         return ApiResponse::success([
             'access_token' => $token,
             'token_type' => 'bearer',
             'expires_in' => Auth::guard('api')->factory()->getTTL() * 60,
-            'user' => Auth::guard('api')->user(),
+            'user' => $userData,
         ], 'Token created successfully');
     }
     public function refresh()
@@ -110,9 +119,18 @@ class AuthController extends Controller
      */
     public function me()
     {
+        $user = Auth::guard('api')->user();
+
+        // Récupération des noms des rôles de l'utilisateur sous forme d'array
+        $roles = $user->getRoleNames()->toArray()[0];
+
+        // Ajout des rôles à l'array de données de l'utilisateur
+        $userData = $user->toArray();
+        $userData['role'] = $roles;
+
         return ApiResponse::success([
-        'user' => Auth::guard('api')->user(),
-    ]);
+            'user' => $userData,
+        ]);
     }
 
     /**

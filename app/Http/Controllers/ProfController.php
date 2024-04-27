@@ -56,10 +56,10 @@ class ProfController extends Controller
             'prenom' => $request->input('prenom'),
             'username' => $username,
             'password' => Hash::make($password),
+            'passwordinit' =>$password,
             // Assurez-vous que le champ "passwordinit" existe dans le modèle
         ]);
         $prof->user_id = $user->id; // Assurez-vous que le modèle Eleve a un champ user_id
-        $prof->passwordinit = $password; // Assurez-vous que le modèle Eleve a un champ user_id
         // Sauvegarde de l'élève dans la base de données
         $prof->save();
 

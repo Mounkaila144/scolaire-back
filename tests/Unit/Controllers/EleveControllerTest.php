@@ -43,7 +43,7 @@ class EleveControllerTest extends TestCase
 
 
         $user = User::factory()->create();
-        $user->assignRole('admin');
+        $user->assignRole('superadmin');
         $token = auth()->login($user);
 
         // Perform the request

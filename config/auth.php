@@ -13,7 +13,7 @@ return [
     |
     */
     'rolePermissions' => [
-        'superadmin' => ['admin'],
+        'superadmin' => ['superadmin','admin'],
         'admin' => ['admin'],
         'prof' => ['prof'],
         'eleve' => ['eleve'],

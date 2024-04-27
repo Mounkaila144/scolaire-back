@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Helpers\ApiResponse;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -9,10 +10,16 @@ use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:superadmin');
+    }
+
     public function index()
     {
-        $users = User::where('role', 'admin')->get();
-        return response()->json($users);
+        $users=User::role('admin')->get();
+        return ApiResponse::success($users, 'Liste des classes récupérée avec succès');
+
     }
     private function generateNumericPassword($length)
     {
@@ -39,7 +46,7 @@ class UserController extends Controller
     }
     public function store(Request $request)
     {
-        $requiredFields = ['nom', 'prenom', 'role'];
+        $requiredFields = ['nom', 'prenom'];
         $missingFields = [];
 
         foreach ($requiredFields as $field) {
@@ -60,7 +67,6 @@ class UserController extends Controller
         $request->validate([
             'nom' => 'required|string|max:255',
             'prenom' => 'required|string|max:255',
-            'role' => 'required|string|max:255',
 
         ]);
         $username = $this->generateUniqueUsername($request->input('prenom'));
@@ -70,14 +76,14 @@ class UserController extends Controller
             'nom' => $request->input('nom'), // Utilisez 'input' pour accéder aux valeurs
             'prenom' => $request->input('prenom'),
             'username' => $username,
-            'role' => $request->input('role'),
             'password' => Hash::make($password),
             'passwordinit' =>$password, // Assurez-vous que le champ "passwordinit" existe dans le modèle
         ]);
+        $user->assignRole('admin');
 
         return response()->json([
             'status' => 'success',
-            'message' => 'User created successfully',
+             'message' => 'User created successfully',
             'user' => $user,
         ], 201);
     }

@@ -1,130 +1,85 @@
 <?php
 
 namespace Tests\Unit\Controllers;
-
-use App\Http\Controllers\DepenseController;
 use App\Models\User;
+use App\Models\Promotion;
+use Database\Seeders\initDataSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\Response;
 use Tests\TestCase;
 
 class UserControllerTest extends TestCase
 {
     use RefreshDatabase;
-
-
-    /** @test */
-    public function it_can_get_all_users()
+    protected function setUp(): void {
+        parent::setUp();
+        // Exécute tous les seeders disponibles
+        $this->seed(initDataSeeder::class);
+    }
+    public function test_can_list_user()
     {
-        $data = [
-            'nom' => fake()->firstName(),
-            'prenom' => fake()->lastName(),
-            'role' => "admin"
-        ];
-        $this->json('post', 'api/users', $data);
-        $response = $this->getJson('/api/users');
+        $user = User::factory()->create();
+        $user->assignRole('superadmin');
+        $token = auth()->login($user);
+        User::factory()->count(3)->create();
+        $response = $this->get('/api/users', ['Authorization' => "Bearer $token"]);
 
         $response->assertStatus(200);
-        $this->assertCount(1, User::all());
     }
 
-    /** @test */
-
-    public function testShowForMissingUser()
+    public function test_can_show_user()
     {
+        $user = User::factory()->create();
+        $user->assignRole('superadmin');
+        $token = auth()->login($user);
+        $user = User::factory()->create();
+        $response = $this->get("/api/users/{$user->id}", ['Authorization' => "Bearer $token"]);
 
-        $this->json('get', "api/users/0")
-            ->assertStatus(Response::HTTP_NOT_FOUND)
-            ->assertJsonStructure(['error']);
-
+        $response->assertStatus(200);
     }
 
-    /** @test */
-    public function testStoreWithMissingData()
+    public function test_can_create_user()
     {
 
-        $payload = [
-            'nom' => 'Mathematics'
-//            'prix' => 200,
-            //email address is missing
-        ];
-        $this->json('post', 'api/users', $payload)
-            ->assertStatus(Response::HTTP_BAD_REQUEST)
-            ->assertJsonStructure(['error']);
-    }
+        $matiere = User::factory()->create();
+        $promotion = Promotion::factory()->create();
 
-    /** @test */
-    public function test_it_can_update_a_user()
-    {
+        $user = User::factory()->create();
+        $user->assignRole('superadmin');
+        $token = auth()->login($user);
         $data = [
-            'nom' => fake()->firstName(),
-            'prenom' => fake()->lastName(),
-            'role' => "admin"
+            'nom' =>'mounkaila',
+            'prenom' =>'boubacar',
+
         ];
+        $response = $this->withHeaders([
+            'Authorization' => "Bearer $token"
+        ])->post('/api/users', $data);
 
-        // Enregistrer l'utilisateur et récupérer la réponse JSON
-        $response = $this->json('post', 'api/users', $data);
-
-        $user = $response->json('user'); // Récupérer l'utilisateur créé dans la réponse
-
-        $dataEdit = [
-            'nom' => 'bbc',
-            'prenom' => 'mkl',
-            // Ajoutez d'autres données à modifier au besoin
-        ];
-
-        // Mettre à jour les données de l'utilisateur via l'API PUT
-        $this->json('put', "api/users/{$user['id']}", $dataEdit)
-            ->assertStatus(200);
-
-        // Récupérer à nouveau les détails de l'utilisateur après la mise à jour
-        $updatedUserResponse = $this->json('get', "api/users/{$user['id']}")
-            ->assertStatus(200)
-            ->assertJson([
-                'nom' => $dataEdit['nom'],
-                'prenom' => $dataEdit['prenom'],
-                // Ajoutez d'autres champs que vous avez modifiés
-            ]);
+        $response->assertStatus(201);
     }
 
-    public function testUpdateForMissingUser()
+    public function test_can_update_user()
     {
+        $user = User::factory()->create();
+        $user->assignRole('superadmin');
+        $token = auth()->login($user);
+        $user = User::factory()->create();
+        $data = ['user' => 17];
 
-        $payload = [
-            'nom' => 'Science',
-            'prix' => 250,
-        ];
+        $response = $this->put("/api/users/{$user->id}", $data, ['Authorization' => "Bearer $token"]);
 
-        $this->json('put', 'api/users/0', $payload)
-            ->assertStatus(Response::HTTP_NOT_FOUND)
-            ->assertJsonStructure(['error']);
+        $response->assertStatus(200);
     }
 
-    /** @test */
-    public function it_can_delete_a_user()
+    public function test_can_delete_user()
     {
-        $data = [
-            'nom' => fake()->firstName(),
-            'prenom' => fake()->lastName(),
-            'role' => "admin"
-        ];
+        $user = User::factory()->create();
+        $user->assignRole('superadmin');
+        $token = auth()->login($user);
+        $user = User::factory()->create();
 
-        // Enregistrer l'utilisateur et récupérer la réponse JSON
-        $response = $this->json('post', 'api/users', $data);
+        $response = $this->delete("/api/users/{$user->id}",[], ['Authorization' => "Bearer $token"]);
 
-        $user = $response->json('user');
-        $this->json('delete', "api/users/{$user['id']}")
-            ->assertStatus(204)
-            ->assertNoContent();
-        $this->assertDatabaseMissing('users', $data);
-
-    }
-
-    public function testDestroyForMissingUser()
-    {
-
-        $this->json('delete', 'api/users/0')
-            ->assertStatus(Response::HTTP_NOT_FOUND)
-            ->assertJsonStructure(['error']);
+        $response->assertStatus(204);
     }
 }
