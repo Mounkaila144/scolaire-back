@@ -58,6 +58,8 @@
         }
     },
     "config": {
+        "secure-http": false,
+        "github-protocols": ["https"],
         "optimize-autoloader": true,
         "preferred-install": "dist",
         "sort-packages": true,
@@ -65,6 +67,7 @@
             "pestphp/pest-plugin": true
         }
     },
+
     "minimum-stability": "dev",
     "prefer-stable": true
 }
