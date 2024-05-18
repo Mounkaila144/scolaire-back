@@ -1,16 +1,21 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Helpers\ApiResponse;
 use App\Models\Depense;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class DepenseController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:admin');
+    }
     public function index()
     {
         $depense = Depense::all();
-        return response()->json($depense);
+        return ApiResponse::success($depense);
     }
 
     public function store(Request $request)
@@ -30,23 +35,20 @@ class DepenseController extends Controller
             $errorMessage = count($missingFields) > 1 ? 'Les champs suivants sont manquants : ' : 'Le champ suivant est manquant : ';
             $errorMessage .= implode(', ', $missingFields);
 
-            return $this->errorResponse(
-                $errorMessage,
-                Response::HTTP_BAD_REQUEST
-            );
+            return ApiResponse::error();
         }
         $data = $request->all();
 $data["promotion_id"]=$promotionId;
         $classe = Depense::create($data);
         $classe->save();
-        return response()->json($classe, 201);
+        return ApiResponse::created($classe);
     }
     public function show($id)
     {
 
         $Depense= Depense::findOrFail($id);
 
-        Return response()->json($Depense);
+        Return ApiResponse::success($Depense);
     }
     /**
      * Show the form for editing the specified resource.
@@ -59,13 +61,13 @@ $data["promotion_id"]=$promotionId;
         $classe = Depense::findOrFail($id);
         $classe->update($request->all());
 
-        return response()->json($classe, 200);
+        return ApiResponse::success($classe);
     }
 
     public function destroy($id)
     {
         $classe = Depense::findOrFail($id);
         $classe->delete();
-        return response()->json(null, 204);
+        return ApiResponse::noContent();
     }
 }

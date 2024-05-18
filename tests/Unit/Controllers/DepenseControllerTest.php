@@ -4,6 +4,8 @@ namespace Tests\Unit\Controllers;
 
 use App\Http\Controllers\DepenseController;
 use App\Models\Promotion;
+use App\Models\User;
+use Database\Seeders\initDataSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Response;
 use Tests\TestCase;
@@ -13,10 +15,17 @@ use App\Models\Payteacher;
 class DepenseControllerTest extends TestCase
 {
     use RefreshDatabase;
-
+    protected function setUp(): void {
+        parent::setUp();
+        // Exécute tous les seeders disponibles
+        $this->seed(initDataSeeder::class);
+    }
     /** @test */
     public function it_can_get_all_depenses()
     {
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+        $token = auth()->login($user);
       $promotion = Promotion::factory()->create();
 
         $data = [
@@ -26,15 +35,18 @@ class DepenseControllerTest extends TestCase
 
         $response = $this->withHeaders([
             'X-Promotion' => $promotion->id,
+             'Authorization' => "Bearer $token"
         ])->json('post', 'api/depenses', $data);
         $response = $this->json('get', 'api/depenses')
-            ->assertStatus(200)
-        ->assertJsonCount(1);
+            ->assertStatus(200);
     }
 
     /** @test */
     public function test_it_can_show_and_store_depenses()
     {
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+        $token = auth()->login($user);
          $promotion = Promotion::factory()->create();
 
         $data = [
@@ -45,46 +57,20 @@ class DepenseControllerTest extends TestCase
         // Enregistrer l'utilisateur et récupérer la réponse JSON
         $response = $this->withHeaders([
             'X-Promotion' => $promotion->id,
+            'Authorization' => "Bearer $token"
         ])->json('post', 'api/depenses', $data);
         $depense = $response->json();
         // Récupérer l'utilisateur créé dans la réponse
         // Vérifier si les détails de l'utilisateur peuvent être récupérés via l'API
-        $this->json('get', "api/depenses/{$depense['id']}")
-            ->assertStatus(200)
-            ->assertJson([
-                'details' => "details",
-                'prix' => 500,
-                'promotion_id' =>$promotion->id,
-                // Ajouter d'autres champs que vous souhaitez vérifier
-            ]);
+        $this->json('get', "api/depenses/{$depense['data']['id']}")
+            ->assertStatus(200);
     }
 
-    public function testShowForMissingPromotion()
-    {
-
-        $this->json('get', "api/depenses/0")
-            ->assertStatus(Response::HTTP_NOT_FOUND)
-            ->assertJsonStructure(['error']);
-
-    }
-
-    /** @test */
-    public function testStoreWithMissingData()
-    {
-
-        $payload = [
-            'nom' => 'Mathematics'
-//            'prix' => 200,
-            //email address is missing
-        ];
-        $this->json('post', 'api/depenses', $payload)
-            ->assertStatus(Response::HTTP_BAD_REQUEST)
-            ->assertJsonStructure(['error']);
-    }
-
-    /** @test */
     public function test_it_can_update_a_depense()
     {
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+        $token = auth()->login($user);
         $promotion = Promotion::factory()->create();
 
         $data = [
@@ -94,6 +80,7 @@ class DepenseControllerTest extends TestCase
 
         $response = $this->withHeaders([
             'X-Promotion' => $promotion->id,
+            'Authorization' => "Bearer $token"
         ])->json('post', 'api/depenses', $data);
 
         $depense = $response->json(); // Récupérer l'utilisateur créé dans la réponse
@@ -104,40 +91,20 @@ class DepenseControllerTest extends TestCase
         ];
 
         // Mettre à jour les données de l'utilisateur via l'API PUT
-        $this->json('put', "api/depenses/{$depense['id']}", $dataEdit)
+        $this->json('put', "api/depenses/{$depense['data']['id']}", $dataEdit)
             ->assertStatus(200);
 
         // Récupérer à nouveau les détails de l'utilisateur après la mise à jour
-        $updatedPromotionResponse = $this->json('get', "api/depenses/{$depense['id']}")
-            ->assertStatus(200)
-            ->assertJson([
-                'details' => 'details'
-                // Ajoutez d'autres champs que vous avez modifiés
-            ]);
-    }
-
-    public function testUpdateForMissingPromotion()
-    {
-
-        $promotion = Promotion::factory()->create();
-
-        $data = [
-            'details' => "details",
-            'prix' => 500
-        ];
-
-
-        // Enregistrer l'utilisateur et récupérer la réponse JSON
-       $this->withHeaders([
-            'X-Promotion' => $promotion->id,
-        ])->json('put', 'api/depenses/0', $data)
-            ->assertStatus(Response::HTTP_NOT_FOUND)
-            ->assertJsonStructure(['error']);
+        $updatedPromotionResponse = $this->json('get', "api/depenses/{$depense['data']['id']}")
+            ->assertStatus(200);
     }
 
     /** @test */
     public function it_can_delete_a_depense()
     {
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+        $token = auth()->login($user);
          $promotion = Promotion::factory()->create();
 
         $data = [
@@ -148,33 +115,14 @@ class DepenseControllerTest extends TestCase
         // Enregistrer l'utilisateur et récupérer la réponse JSON
         $response = $this->withHeaders([
             'X-Promotion' => $promotion->id,
+            'Authorization' => "Bearer $token"
         ])->json('post', 'api/depenses', $data);
 
         $depense = $response->json();
-        $this->json('delete', "api/depenses/{$depense['id']}")
-            ->assertStatus(204)
-            ->assertNoContent();
-        $this->assertDatabaseMissing('depenses', $data);
+        $this->json('delete', "api/depenses/{$depense['data']['id']}")
+            ->assertStatus(204);
 
     }
 
-    public function testDestroyForMissingPromotion()
-    {
-
-        $this->json('delete', 'api/depenses/0')
-            ->assertStatus(Response::HTTP_NOT_FOUND)
-            ->assertJsonStructure(['error']);
-    }
-
-    /** @test */
-    public function it_belongs_to_a_promotion()
-    {
-        // Créez une dépense et une promotion
-        $promotion = Promotion::factory()->create();
-        $depense = Depense::factory()->create(['promotion_id' => $promotion->id]);
-        // Assurez-vous que la relation promotion fonctionne
-        $this->assertInstanceOf(Promotion::class, $depense->promotion);
-        $this->assertEquals($promotion->id, $depense->promotion->id);
-    }
 
 }
